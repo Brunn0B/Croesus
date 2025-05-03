@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Croesus ERP | Portal Real</title>
+    <style>
+        :root {
+            --gold-light: #FFD700;
+            --gold-primary: #D4AF37;
+            --gold-dark: #996515;
+            --black-marble: #0a0a0a;
+            --white-marble: #f5f5f5;
+            --marble-vein: rgba(212, 175, 55, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--black-marble);
+            color: var(--white-marble);
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .royal-gate {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.05) 0%, transparent 30%),
+                linear-gradient(to bottom, rgba(10, 10, 10, 0.95), rgba(10, 10, 10, 0.98)),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><path d="M150,50 C220,50 280,100 280,170 C280,240 220,290 150,290 C80,290 20,240 20,170 C20,100 80,50 150,50 Z" fill="none" stroke="%23D4AF37" stroke-width="1" opacity="0.05"/></svg>');
+            z-index: -2;
+        }
+        
+        .golden-veins {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M30,10 Q50,30 70,10 T90,30 Q70,50 90,70 T70,90 Q50,70 30,90 T10,70 Q30,50 10,30 T30,10" fill="none" stroke="%23D4AF37" stroke-width="0.3" opacity="0.08"/></svg>');
+            z-index: -1;
+            opacity: 0.6;
+        }
+        
+        .login-container {
+            width: 90%;
+            max-width: 420px;
+            padding: 2.5rem;
+            background: rgba(15, 15, 15, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            transform: translateY(30px);
+            opacity: 0;
+            animation: gateOpen 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+            animation: veinPulse 4s ease infinite;
+        }
+        
+        .royal-seal {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            background: radial-gradient(circle, var(--black-marble) 40%, transparent 70%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4));
+        }
+        
+        .royal-seal::before {
+            content: '';
+            position: absolute;
+            width: 110%;
+            height: 110%;
+            border: 2px solid var(--gold-primary);
+            border-radius: 50%;
+            animation: sealRotate 20s linear infinite;
+            opacity: 0.7;
+        }
+        
+        .royal-seal::after {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            border: 1px dashed var(--gold-primary);
+            border-radius: 50%;
+            animation: sealRotateReverse 25s linear infinite;
+            opacity: 0.4;
+        }
+        
+        .seal-img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            z-index: 2;
+        }
+        
+        .login-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 3px;
+            color: var(--gold-primary);
+            position: relative;
+            text-transform: uppercase;
+        }
+        
+        .login-title::after {
+            content: '';
+            position: absolute;
+            bottom: -0.8rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+        }
+        
+        .input-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+            color: var(--gold-primary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            color: var(--white-marble);
+            font-size: 1rem;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .input-highlight {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold-dark), var(--gold-primary));
+            transition: all 0.4s ease;
+            z-index: 2;
+        }
+        
+        .input-field:focus ~ .input-highlight {
+            width: 100%;
+        }
+        
+        .password-container {
+            position: relative;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold-primary);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-password:hover {
+            opacity: 1;
+        }
+        
+        .royal-gateway {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+            border: none;
+            border-radius: 8px;
+            color: var(--black-marble);
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+        
+        .royal-gateway::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 20%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0) 80%
+            );
+            transform: rotate(30deg);
+            transition: all 0.7s ease;
+        }
+        
+        .royal-gateway:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4);
+        }
+        
+        .royal-gateway:hover::before {
+            left: 100%;
+        }
+        
+        .gateway-footer {
+            text-align: center;
+            margin-top: 2.5rem;
+            font-size: 0.8rem;
+            color: rgba(245, 245, 245, 0.6);
+        }
+        
+        .gateway-footer a {
+            color: var(--gold-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .gateway-footer a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gold-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .gateway-footer a:hover::after {
+            width: 100%;
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            text-align: center;
+            height: 1rem;
+        }
+        
+        /* Modal de Setup */
+        .setup-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .setup-content {
+            background: rgba(30, 41, 59, 0.9);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--gold-primary);
+        }
+        
+        .setup-title {
+            color: var(--gold-primary);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .setup-step {
+            display: block;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Modal de Cadastro de Primeiro Acesso - Estilo Aprimorado */
+       /* Modal de Cadastro de Primeiro Acesso - Estilo Aprimorado */
+.first-access-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 1000;
+    justify-content: center;
+    align-items: flex-start; /* Changed from center to flex-start */
+    overflow-y: auto; /* Added to enable scrolling */
+    padding: 2rem 0; /* Added padding */
+}
+
+.first-access-content {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+    padding: 2rem; /* Reduced padding */
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh; /* Added max-height */
+    overflow-y: auto; /* Added scrolling */
+    border: 1px solid var(--gold-primary);
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+    position: relative;
+    margin: 2rem 0; /* Added margin */
+}
+
+.first-access-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+}
+
+.first-access-title {
+    color: var(--gold-primary);
+    text-align: center;
+    margin-bottom: 1.5rem; /* Reduced margin */
+    font-size: 1.3rem; /* Reduced font size */
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+}
+
+.first-access-title::after {
+    content: '';
+    position: absolute;
+    bottom: -0.8rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+}
+
+.first-access-step {
+    display: none;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.first-access-step.active {
+    display: block;
+}
+
+.first-access-message {
+    color: var(--white-marble);
+    margin-bottom: 1.5rem; /* Reduced margin */
+    text-align: center;
+    line-height: 1.6;
+    font-size: 0.9rem; /* Reduced font size */
+}
+
+.first-access-success {
+    display: none;
+    text-align: center;
+    padding: 1rem 0; /* Reduced padding */
+}
+
+.first-access-success p {
+    color: var(--gold-primary);
+    margin-bottom: 1rem;
+    font-size: 1rem; /* Reduced font size */
+}
+
+.first-access-success svg {
+    width: 50px; /* Reduced size */
+    height: 50px; /* Reduced size */
+    margin-bottom: 1rem; /* Reduced margin */
+    color: var(--gold-primary);
+    animation: bounceIn 0.8s;
+}
+
+.steps-indicator {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem; /* Reduced margin */
+    gap: 10px;
+}
+
+.step-dot {
+    width: 10px; /* Reduced size */
+    height: 10px; /* Reduced size */
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.3);
+    transition: all 0.3s ease;
+}
+
+.step-dot.active {
+    background: var(--gold-primary);
+    transform: scale(1.2);
+}
+
+.first-access-btn {
+    width: 100%;
+    padding: 1rem; /* Reduced padding */
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+    border: none;
+    border-radius: 8px;
+    color: var(--black-marble);
+    font-size: 0.9rem; /* Reduced font size */
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    margin-top: 1rem; /* Reduced margin */
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.first-access-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+}
+
+.first-access-btn:active {
+    transform: translateY(0);
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px; /* Adjusted position */
+    right: 10px; /* Adjusted position */
+    color: var(--gold-primary);
+    font-size: 1.3rem; /* Reduced size */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.close-modal:hover {
+    transform: scale(1.1);
+}
+
+/* Input groups adjustments */
+.first-access-content .input-group {
+    margin-bottom: 1.2rem; /* Reduced margin */
+}
+
+.first-access-content .input-field {
+    padding: 0.8rem 1rem; /* Reduced padding */
+    font-size: 0.9rem; /* Reduced font size */
+}
+
+.first-access-content label {
+    margin-bottom: 0.5rem; /* Reduced margin */
+    font-size: 0.8rem; /* Reduced font size */
+}
+
+/* Error message adjustments */
+.first-access-content .error-message {
+    font-size: 0.8rem; /* Reduced font size */
+    margin-top: 0.3rem; /* Reduced margin */
+    min-height: 0.8rem; /* Reduced height */
+}
+        
+        @keyframes gateOpen {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes veinPulse {
+            0%, 100% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes sealRotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes sealRotateReverse {
+            to {
+                transform: rotate(-360deg);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Efeito de partículas douradas */
+        .gold-dust {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background-color: var(--gold-primary);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="royal-gate"></div>
+    <div class="golden-veins"></div>
+    <div class="gold-dust" id="goldDust"></div>
+    
+    <div class="login-container">
+        <div class="royal-seal">
+            <img src="img/Logo 2 hd.png" alt="Selo Real" class="seal-img">
+        </div>
+        
+        <h1 class="login-title">Croesus ERP</h1>
+        
+        <form id="gatewayForm">
+            <div class="input-group">
+                <label for="royalCode">código</label>
+                <input type="text" id="royalCode" class="input-field" required>
+                <div class="input-highlight"></div>
+                <div class="error-message" id="usernameError"></div>
+            </div>
+            
+            <div class="input-group">
+                <label for="royalKey">senha</label>
+                <div class="password-container">
+                    <input type="password" id="royalKey" class="input-field" required>
+                    <div class="input-highlight"></div>
+                    <span class="toggle-password" id="togglePassword">👁️</span>
+                </div>
+                <div class="error-message" id="passwordError"></div>
+            </div>
+            
+            <button type="submit" class="royal-gateway" id="gatewayButton">
+                <span>ENTRAR</span>
+            </button>
+            
+            <div class="gateway-footer">
+                <p>Primeiro acesso? <a href="#" id="firstAccess">Cadastre-se</a></p>
+                <p><a href="#" id="forgotKey">Esqueceu a senha?</a></p>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Modal de Setup Inicial -->
+    <div id="setupModal" class="setup-modal">
+        <div class="setup-content">
+            <h2 class="setup-title">Configuração Inicial</h2>
+            
+            <div id="setupStep1" class="setup-step">
+                <p style="color: var(--white-marble); margin-bottom: 1.5rem;">Nenhum usuário root encontrado. Para criar o primeiro administrador, insira a senha mestra:</p>
+                
+                <div class="input-group">
+                    <label for="masterPassword">Senha Mestra</label>
+                    <input type="password" id="masterPassword" class="input-field" required>
+                    <div class="input-highlight"></div>
+                </div>
+                
+                <button id="verifyMasterBtn" class="royal-gateway" style="margin-top: 1.5rem;">
+                    <span>VERIFICAR SENHA MESTRA</span>
+                </button>
+            </div>
+            
+            <div id="setupStep2" class="setup-step hidden">
+                <p style="color: var(--white-marble); margin-bottom: 1.5rem;">Crie o usuário administrador:</p>
+                
+                <div class="input-group">
+                    <label for="rootUsername">Nome de Usuário</label>
+                    <input type="text" id="rootUsername" class="input-field" required>
+                    <div class="input-highlight"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="rootFullName">Nome Completo</label>
+                    <input type="text" id="rootFullName" class="input-field" required>
+                    <div class="input-highlight"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="rootEmail">Email</label>
+                    <input type="email" id="rootEmail" class="input-field" required>
+                    <div class="input-highlight"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="rootPassword">Senha</label>
+                    <div class="password-container">
+                        <input type="password" id="rootPassword" class="input-field" required>
+                        <div class="input-highlight"></div>
+                        <span class="toggle-password" onclick="togglePassword('rootPassword', this)">👁️</span>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="rootConfirmPassword">Confirmar Senha</label>
+                    <div class="password-container">
+                        <input type="password" id="rootConfirmPassword" class="input-field" required>
+                        <div class="input-highlight"></div>
+                        <span class="toggle-password" onclick="togglePassword('rootConfirmPassword', this)">👁️</span>
+                    </div>
+                </div>
+                
+                <div class="error-message" id="setupError" style="height: auto; min-height: 1rem;"></div>
+                
+                <button id="createRootBtn" class="royal-gateway" style="margin-top: 1.5rem;">
+                    <span>CRIAR USUÁRIO ROOT</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Cadastro de Primeiro Acesso -->
+    <div id="firstAccessModal" class="first-access-modal">
+        <div class="first-access-content">
+            <span class="close-modal" onclick="closeModal('firstAccessModal')">&times;</span>
+            
+            <!-- Indicador de passos -->
+            <div class="steps-indicator">
+                <div class="step-dot active" id="stepDot1"></div>
+                <div class="step-dot" id="stepDot2"></div>
+            </div>
+            
+            <h2 class="first-access-title">CADASTRO DE PRIMEIRO ACESSO</h2>
+            
+            <!-- Passo 1 - Chave de Ativação -->
+            <div id="firstAccessStep1" class="first-access-step active">
+                <p class="first-access-message">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-primary); margin-right: 8px; vertical-align: middle;">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Insira a chave de ativação fornecida pelo administrador do sistema para iniciar seu cadastro.
+                </p>
+                
+                <div class="input-group">
+                    <label for="activationKey">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-primary); margin-right: 8px;">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        Chave de Ativação
+                    </label>
+                    <input type="text" id="activationKey" class="input-field" placeholder="Ex: CROESUS-1234-5678" required>
+                    <div class="input-highlight"></div>
+                </div>
+                
+                <div class="error-message" id="activationKeyError" style="height: auto; min-height: 1rem;"></div>
+                
+                <button id="verifyActivationKeyBtn" class="first-access-btn">
+                    <span>VERIFICAR CHAVE</span>
+                </button>
+            </div>
+            
+            <!-- Passo 2 - Cadastro do Usuário -->
+            <div id="firstAccessStep2" class="first-access-step">
+                <p class="first-access-message">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-primary); margin-right: 8px; vertical-align: middle;">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="8.5" cy="7" r="4"></circle>
+                        <line x1="20" y1="8" x2="20" y2="14"></line>
+                        <line x1="23" y1="11" x2="17" y2="11"></line>
+                    </svg>
+                    Preencha os dados abaixo para criar seu usuário:
+                </p>
+                
+                <div class="input-group">
+                    <label for="newUsername">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-primary); margin-right: 8px;">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Nome de Usuário
+                    </label>
+                    <input type="text" id="newUsername" class="input-field" placeholder="Escolha um nome de usuário único" required>
+                    <div class="input-highlight"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="newFullName">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-primary); margin-right: 8px;">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Nome Completo
+                    </label>
+                    <input type="text" id="newFullName" class="input-field" placeholder="Seu nome completo" required>
+                    <div class="input-highlight"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="newEmail">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-primary); margin-right: 8px;">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        Email
+                    </label>
+                    <input type="email" id="newEmail" class="input-field" placeholder="seu@email.com" required>
+                    <div class="input-highlight"></div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="newPassword">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-primary); margin-right: 8px;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Senha
+                    </label>
+                    <div class="password-container">
+                        <input type="password" id="newPassword" class="input-field" placeholder="Mínimo 8 caracteres" required>
+                        <div class="input-highlight"></div>
+                        <span class="toggle-password" onclick="togglePassword('newPassword', this)">👁️</span>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="newConfirmPassword">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-primary); margin-right: 8px;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Confirmar Senha
+                    </label>
+                    <div class="password-container">
+                        <input type="password" id="newConfirmPassword" class="input-field" placeholder="Confirme sua senha" required>
+                        <div class="input-highlight"></div>
+                        <span class="toggle-password" onclick="togglePassword('newConfirmPassword', this)">👁️</span>
+                    </div>
+                </div>
+                
+                <div class="error-message" id="firstAccessError" style="height: auto; min-height: 1rem;"></div>
+                
+                <button id="completeRegistrationBtn" class="first-access-btn">
+                    <span>COMPLETAR CADASTRO</span>
+                </button>
+            </div>
+            
+            <!-- Mensagem de Sucesso -->
+            <div id="firstAccessSuccess" class="first-access-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <p>Cadastro realizado com sucesso!</p>
+                <p>Você já pode fazer login com suas credenciais.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Recuperação de Senha -->
+    <div id="forgotPasswordModal" class="first-access-modal">
+        <div class="first-access-content">
+            <span class="close-modal" onclick="closeModal('forgotPasswordModal')">&times;</span>
+            <h2 class="first-access-title">RECUPERAÇÃO DE SENHA</h2>
+            
+            <div id="forgotPasswordForm">
+                <p class="first-access-message">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-primary); margin-right: 8px; vertical-align: middle;">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    Informe seu email cadastrado para receber as instruções de recuperação de senha.
+                </p>
+                
+                <div class="input-group">
+                    <label for="recoveryEmail">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold-primary); margin-right: 8px;">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        Email Cadastrado
+                    </label>
+                    <input type="email" id="recoveryEmail" class="input-field" required>
+                    <div class="input-highlight"></div>
+                </div>
+                
+                <div class="error-message" id="recoveryError" style="height: auto; min-height: 1rem;"></div>
+                
+                <button id="submitRecoveryBtn" class="first-access-btn">
+                    <span>ENVIAR INSTRUÇÕES</span>
+                </button>
+            </div>
+            
+            <div id="forgotPasswordSuccess" class="first-access-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <p>Enviamos um email com as instruções para redefinir sua senha.</p>
+                <p>Verifique sua caixa de entrada e a pasta de spam.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cria partículas douradas
+        function createGoldDust() {
+            const container = document.getElementById('goldDust');
+            const particleCount = 25;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Tamanho aleatório entre 1px e 4px
+                const size = Math.random() * 3 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Posição inicial aleatória
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Atraso e duração da animação
+                particle.style.animationDelay = `${Math.random() * 15}s`;
+                particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // Alternar visibilidade da senha
+        function togglePassword(id, element) {
+            const input = document.getElementById(id);
+            if (input.type === 'password') {
+                input.type = 'text';
+                element.textContent = '🔒';
+            } else {
+                input.type = 'password';
+                element.textContent = '👁️';
+            }
+        }
+        
+        // Fechar modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Abrir modal
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+        
+        // Verificar setup inicial
+        async function checkInitialSetup() {
+            try {
+                const response = await fetch('/api/setup/check');
+                const data = await response.json();
+                
+                if (data.needsSetup) {
+                    openModal('setupModal');
+                }
+            } catch (error) {
+                console.error('Erro ao verificar setup:', error);
+            }
+        }
+        
+        // Formulário de login
+        document.getElementById('gatewayForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const royalCode = document.getElementById('royalCode').value;
+            const royalKey = document.getElementById('royalKey').value;
+            const button = document.getElementById('gatewayButton');
+            const originalText = button.innerHTML;
+            
+            // Reset errors
+            document.getElementById('usernameError').textContent = '';
+            document.getElementById('passwordError').textContent = '';
+            
+            // Efeito de loading
+            button.innerHTML = `
+                <span style="display: inline-flex; align-items: center; justify-content: center;">
+                    <svg style="width: 20px; height: 20px; margin-right: 10px; animation: spin 1s linear infinite;" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"/>
+                    </svg>
+                    VERIFICANDO CREDENCIAIS...
+                </span>
+            `;
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: royalCode,
+                        password: royalKey
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Armazena o token JWT
+                    localStorage.setItem('authToken', data.token);
+                    
+                    // Redireciona para o dashboard
+                    window.location.href = '/dashboard.html';
+                } else {
+                    // Exibe mensagem de erro
+                    if (data.field === 'username') {
+                        document.getElementById('usernameError').textContent = data.message;
+                    } else if (data.field === 'password') {
+                        document.getElementById('passwordError').textContent = data.message;
+                    } else {
+                        alert(`Erro: ${data.message}`);
+                    }
+                    
+                    // Efeito de erro
+                    button.innerHTML = '<span>ACESSO NEGADO</span>';
+                    button.style.background = 'linear-gradient(135deg, #d63031, #ff7675)';
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.background = 'linear-gradient(135deg, var(--gold-dark), var(--gold-primary))';
+                        button.disabled = false;
+                    }, 1500);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Falha ao conectar com o servidor');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        });
+        
+        // Verificar senha mestra
+        document.getElementById('verifyMasterBtn').addEventListener('click', async function() {
+            const masterPassword = document.getElementById('masterPassword').value;
+            
+            if (!masterPassword) {
+                alert('Por favor, insira a senha mestra');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/setup/verify-master', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ masterPassword })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('setupStep1').classList.add('hidden');
+                    document.getElementById('setupStep2').classList.remove('hidden');
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Senha mestra incorreta');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Falha ao verificar senha mestra');
+            }
+        });
+        
+        // Criar usuário root
+        document.getElementById('createRootBtn').addEventListener('click', async function() {
+            const username = document.getElementById('rootUsername').value;
+            const fullName = document.getElementById('rootFullName').value;
+            const email = document.getElementById('rootEmail').value;
+            const password = document.getElementById('rootPassword').value;
+            const confirmPassword = document.getElementById('rootConfirmPassword').value;
+            const masterPassword = document.getElementById('masterPassword').value;
+            const errorElement = document.getElementById('setupError');
+            
+            errorElement.textContent = '';
+            
+            // Validações básicas
+            if (!username || !fullName || !email || !password || !confirmPassword) {
+                errorElement.textContent = 'Todos os campos são obrigatórios';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorElement.textContent = 'As senhas não coincidem';
+                return;
+            }
+            
+            if (password.length < 8) {
+                errorElement.textContent = 'A senha deve ter pelo menos 8 caracteres';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/setup/create-root', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        masterPassword,
+                        username,
+                        password,
+                        email,
+                        fullName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Usuário root criado com sucesso! Você pode fazer login agora.');
+                    closeModal('setupModal');
+                } else {
+                    errorElement.textContent = data.message || 'Erro ao criar usuário root';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                errorElement.textContent = 'Falha ao criar usuário root';
+            }
+        });
+        
+        // Primeiro Acesso - Abrir modal
+        document.getElementById('firstAccess').addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal('firstAccessModal');
+            
+            // Resetar o modal para o primeiro passo
+            document.getElementById('firstAccessStep1').classList.add('active');
+            document.getElementById('firstAccessStep2').classList.remove('active');
+            document.getElementById('firstAccessSuccess').style.display = 'none';
+            document.getElementById('stepDot1').classList.add('active');
+            document.getElementById('stepDot2').classList.remove('active');
+            
+            // Limpar campos
+            document.getElementById('activationKey').value = '';
+            document.getElementById('activationKeyError').textContent = '';
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newFullName').value = '';
+            document.getElementById('newEmail').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newConfirmPassword').value = '';
+            document.getElementById('firstAccessError').textContent = '';
+        });
+        
+        // Primeiro Acesso - Verificar chave de ativação
+        document.getElementById('verifyActivationKeyBtn').addEventListener('click', async function() {
+            const activationKey = document.getElementById('activationKey').value;
+            const errorElement = document.getElementById('activationKeyError');
+            
+            errorElement.textContent = '';
+            
+            if (!activationKey) {
+                errorElement.textContent = 'Por favor, insira a chave de ativação';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/first-access/verify-key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ activationKey })
+                });
+                
+                if (response.ok) {
+                    // Chave válida - avançar para o próximo passo
+                    document.getElementById('firstAccessStep1').classList.remove('active');
+                    document.getElementById('firstAccessStep2').classList.add('active');
+                    document.getElementById('stepDot1').classList.remove('active');
+                    document.getElementById('stepDot2').classList.add('active');
+                } else {
+                    const data = await response.json();
+                    errorElement.textContent = data.message || 'Chave de ativação inválida';
+                }
+            } catch (error) {
+                console.error('Erro ao verificar chave de ativação:', error);
+                errorElement.textContent = 'Falha ao verificar chave de ativação';
+            }
+        });
+        
+        // Primeiro Acesso - Completar cadastro
+        document.getElementById('completeRegistrationBtn').addEventListener('click', async function() {
+            const username = document.getElementById('newUsername').value;
+            const fullName = document.getElementById('newFullName').value;
+            const email = document.getElementById('newEmail').value;
+            const password = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('newConfirmPassword').value;
+            const activationKey = document.getElementById('activationKey').value;
+            const errorElement = document.getElementById('firstAccessError');
+            
+            errorElement.textContent = '';
+            
+            // Validações básicas
+            if (!username || !fullName || !email || !password || !confirmPassword) {
+                errorElement.textContent = 'Todos os campos são obrigatórios';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorElement.textContent = 'As senhas não coincidem';
+                return;
+            }
+            
+            if (password.length < 8) {
+                errorElement.textContent = 'A senha deve ter pelo menos 8 caracteres';
+                return;
+            }
+            
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                errorElement.textContent = 'Por favor, insira um email válido';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/first-access/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        activationKey,
+                        username,
+                        password,
+                        email,
+                        fullName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Mostrar mensagem de sucesso
+                    document.getElementById('firstAccessStep2').classList.remove('active');
+                    document.getElementById('firstAccessSuccess').style.display = 'block';
+                    
+                    // Fechar o modal após 3 segundos
+                    setTimeout(() => {
+                        closeModal('firstAccessModal');
+                    }, 3000);
+                } else {
+                    errorElement.textContent = data.message || 'Erro ao completar cadastro';
+                }
+            } catch (error) {
+                console.error('Erro ao completar cadastro:', error);
+                errorElement.textContent = 'Falha ao completar cadastro';
+            }
+        });
+        
+        // Recuperação de Senha
+        document.getElementById('forgotKey').addEventListener('click', function(e) {
+            e.preventDefault();
+            openModal('forgotPasswordModal');
+            document.getElementById('forgotPasswordForm').style.display = 'block';
+            document.getElementById('forgotPasswordSuccess').style.display = 'none';
+        });
+        
+        document.getElementById('submitRecoveryBtn').addEventListener('click', async function() {
+            const email = document.getElementById('recoveryEmail').value;
+            const errorElement = document.getElementById('recoveryError');
+            
+            errorElement.textContent = '';
+            
+            // Validações básicas
+            if (!email) {
+                errorElement.textContent = 'Por favor, insira seu email';
+                return;
+            }
+            
+            if (!email.includes('@') || !email.includes('.')) {
+                errorElement.textContent = 'Por favor, insira um email válido';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+                
+                if (response.ok) {
+                    // Mostra mensagem de sucesso
+                    document.getElementById('forgotPasswordForm').style.display = 'none';
+                    document.getElementById('forgotPasswordSuccess').style.display = 'block';
+                    
+                    // Limpa o formulário
+                    document.getElementById('recoveryEmail').value = '';
+                    
+                    // Fecha o modal após 3 segundos
+                    setTimeout(() => {
+                        closeModal('forgotPasswordModal');
+                    }, 3000);
+                } else {
+                    const data = await response.json();
+                    errorElement.textContent = data.message || 'Erro ao enviar solicitação de recuperação';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                errorElement.textContent = 'Falha ao enviar solicitação de recuperação';
+            }
+        });
+        
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('royalKey');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                this.textContent = '🔒';
+            } else {
+                passwordInput.type = 'password';
+                this.textContent = '👁️';
+            }
+        });
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            createGoldDust();
+            checkInitialSetup();
+            
+            // Adiciona animação de spin para o keyframe faltante
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>

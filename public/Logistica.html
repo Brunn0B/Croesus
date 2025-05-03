@@ -1,0 +1,2172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Croesus ERP - Gestão de Estoque</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold-light: #FFD700;
+            --gold-primary: #D4AF37;
+            --gold-dark: #996515;
+            --black-marble: #0a0a0a;
+            --white-marble: #f5f5f5;
+            --marble-vein: rgba(212, 175, 55, 0.1);
+            --sidebar-width: 280px;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--black-marble);
+            color: var(--white-marble);
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .royal-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.05) 0%, transparent 30%),
+                linear-gradient(to bottom, rgba(10, 10, 10, 0.95), rgba(10, 10, 10, 0.98));
+            z-index: -2;
+        }
+
+        .gold-dust {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            background-color: var(--gold-primary);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.4; }
+            100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
+        }
+
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(15, 15, 15, 0.9);
+            border-right: 1px solid rgba(212, 175, 55, 0.2);
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            color: var(--gold-primary);
+            letter-spacing: 2px;
+        }
+
+        .menu {
+            padding: 1.5rem 0;
+        }
+
+        .menu-item {
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            color: var(--white-marble);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item i {
+            margin-right: 1rem;
+            color: var(--gold-primary);
+        }
+
+        .menu-item:hover {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold-primary);
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .inventory-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .inventory-tabs .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            color: rgba(245, 245, 245, 0.7);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .inventory-tabs .tab:hover {
+            color: var(--gold-primary);
+        }
+
+        .inventory-tabs .tab.active {
+            color: var(--gold-primary);
+            border-bottom: 3px solid var(--gold-primary);
+        }
+
+        .tab-content {
+            background: rgba(30, 30, 30, 0.7);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .inventory-card {
+            background: rgba(20, 20, 20, 0.6);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            margin-bottom: 1.5rem;
+        }
+
+        .inventory-card h3 {
+            color: var(--gold-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .royal-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 6px;
+            color: var(--white-marble);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .royal-btn {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
+            border: none;
+            border-radius: 6px;
+            color: var(--black-marble);
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .royal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .royal-btn-outline {
+            background: transparent;
+            border: 1px solid var(--gold-primary);
+            color: var(--gold-primary);
+        }
+
+        .royal-btn-outline:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .items-table th {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--gold-primary);
+            padding: 0.8rem;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+
+        .items-table td {
+            padding: 0.8rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .items-table tr:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .warehouse-map {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .aisle {
+            background: rgba(30, 30, 30, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 6px;
+            padding: 1rem;
+            cursor: pointer;
+        }
+
+        .aisle:hover {
+            border-color: var(--gold-primary);
+        }
+
+        .aisle.active {
+            border-color: var(--gold-primary);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3);
+        }
+
+        .shelf {
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            border: 1px solid var(--gold-primary);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--gold-primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--white-marble);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(212, 175, 55, 0.5);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .product-search-results {
+            margin-top: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 6px;
+        }
+
+        .product-result-item {
+            padding: 0.8rem;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .product-result-item:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .nfe-preview {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(212, 175, 55, 0.3);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            margin: 1rem 0;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 6px;
+        }
+
+        .search-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-controls input {
+            flex: 1;
+        }
+
+        .export-btn {
+            margin-left: auto;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .inventory-tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="royal-bg"></div>
+    <div class="gold-dust" id="goldDust"></div>
+    
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="img/Logo 2 hd.png" alt="Croesus ERP" class="logo">
+                <div class="sidebar-title">Croesus ERP</div>
+            </div>
+            
+            <div class="menu">
+                <a href="dashboard.html" class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item active">
+                    <i class="fas fa-boxes"></i>
+                    <span>Estoque</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Vendas</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-users"></i>
+                    <span>Clientes</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Conteúdo Principal -->
+        <div class="main-content">
+            <h2><i class="fas fa-boxes"></i> Gestão de Estoque</h2>
+            
+            <!-- Abas do sistema de estoque -->
+            <div class="inventory-tabs">
+                <div class="tab active" data-tab="receiving">Recebimento</div>
+                <div class="tab" data-tab="storage">Armazenamento</div>
+                <div class="tab" data-tab="picking">Separação</div>
+                <div class="tab" data-tab="delivery">Expedição</div>
+                <div class="tab" data-tab="products">Produtos</div>
+            </div>
+            
+            <!-- Conteúdo das abas -->
+            <div class="tab-content">
+                <!-- Recebimento -->
+                <div id="receiving-tab" class="tab-pane active">
+                    <div class="inventory-card">
+                        <h3><i class="fas fa-truck-loading"></i> Recebimento de Mercadorias</h3>
+                        
+                        <div class="form-group">
+                            <label>Nº Nota Fiscal</label>
+                            <input type="text" id="invoice-number" class="royal-input" placeholder="Informe o número da nota fiscal">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Fornecedor</label>
+                            <select id="supplier" class="royal-input">
+                                <option value="">Selecione um fornecedor</option>
+                            </select>
+                        </div>
+                        
+                        <button id="scan-barcode" class="royal-btn">
+                            <i class="fas fa-barcode"></i> Ler Código de Barras
+                        </button>
+                        
+                        <button id="add-product" class="royal-btn royal-btn-outline">
+                            <i class="fas fa-plus"></i> Cadastrar Novo Produto
+                        </button>
+                        
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Qtd.Nota</th>
+                                    <th>Qtd.Recebida</th>
+                                    <th>Diferença</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="receiving-items">
+                                <!-- Itens serão adicionados dinamicamente -->
+                            </tbody>
+                        </table>
+                        
+                        <div class="form-group">
+                            <label>Observações</label>
+                            <textarea id="receiving-notes" class="royal-input" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button id="contest-receiving" class="royal-btn royal-btn-outline">
+                                <i class="fas fa-exclamation-triangle"></i> Contestar Recebimento
+                            </button>
+                            <button id="save-receiving" class="royal-btn">
+                                <i class="fas fa-check-circle"></i> Confirmar Recebimento
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Armazenamento -->
+                <div id="storage-tab" class="tab-pane">
+                    <div class="inventory-card">
+                        <h3><i class="fas fa-warehouse"></i> Armazenamento</h3>
+                        
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="flex: 1;">
+                                <label>Seção do Armazém</label>
+                                <select id="warehouse-section" class="royal-input">
+                                    <option value="">Selecione uma seção</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="add-section" class="royal-btn" style="margin-top: 1.5rem;">
+                                    <i class="fas fa-plus"></i> Nova Seção
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="aisle-controls" style="display: none; margin-bottom: 1.5rem;">
+                            <button id="add-aisle" class="royal-btn">
+                                <i class="fas fa-plus"></i> Adicionar Corredor
+                            </button>
+                        </div>
+                        
+                        <div class="warehouse-map" id="warehouse-map">
+                            <!-- Mapa será gerado dinamicamente -->
+                            <div class="empty-state">
+                                <i class="fas fa-warehouse"></i>
+                                <p>Selecione uma seção para visualizar o armazém</p>
+                            </div>
+                        </div>
+                        
+                        <div id="location-details" style="display: none; margin-top: 1.5rem;">
+                            <h4><i class="fas fa-map-marker-alt"></i> Detalhes do Local</h4>
+                            <div id="location-info" style="margin-bottom: 1.5rem;"></div>
+                            
+                            <div id="location-items">
+                                <h5><i class="fas fa-box-open"></i> Itens neste local</h5>
+                                <table class="items-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Produto</th>
+                                            <th>Quantidade</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="location-items-list">
+                                        <!-- Itens serão adicionados dinamicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div id="add-item-form" style="margin-top: 1.5rem;">
+                                <h5><i class="fas fa-plus-circle"></i> Adicionar Item</h5>
+                                <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+                                    <input type="text" id="item-search" class="royal-input" placeholder="Código ou nome do produto" style="flex: 1;">
+                                    <button id="search-product" class="royal-btn">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                </div>
+                                <div id="product-results" class="product-search-results" style="display: none;"></div>
+                                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                                    <input type="number" id="item-quantity" class="royal-input" placeholder="Quantidade" style="width: 120px;">
+                                    <button id="add-item" class="royal-btn">
+                                        <i class="fas fa-plus"></i> Adicionar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Separação -->
+                <div id="picking-tab" class="tab-pane">
+                    <div class="inventory-card">
+                        <h3><i class="fas fa-box-open"></i> Separação de Pedidos</h3>
+                        
+                        <div class="form-group">
+                            <label>Nº do Pedido</label>
+                            <input type="text" id="order-number" class="royal-input" placeholder="Digite ou escaneie o número do pedido">
+                        </div>
+                        
+                        <div id="order-details" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h4>Itens para Separação</h4>
+                                <div>
+                                    <span class="status-badge status-info" id="order-status">Pendente</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Grupo de clientes (estrutura pronta para implementação) -->
+                            <div id="client-groups" style="margin-bottom: 1.5rem; display: none;">
+                                <h5><i class="fas fa-users"></i> Agrupamento por Cliente</h5>
+                                <div class="empty-state">
+                                    <p>Nenhum agrupamento de cliente necessário para este pedido</p>
+                                </div>
+                            </div>
+                            
+                            <table class="items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Localização</th>
+                                        <th>Qtd.</th>
+                                        <th>Separado</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="picking-items">
+                                    <!-- Itens serão adicionados dinamicamente -->
+                                </tbody>
+                            </table>
+                            
+                            <div style="margin-top: 1.5rem;">
+                                <button id="complete-picking" class="royal-btn">
+                                    <i class="fas fa-check"></i> Concluir Separação
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Expedição -->
+                <div id="delivery-tab" class="tab-pane">
+                    <div class="inventory-card">
+                        <h3><i class="fas fa-shipping-fast"></i> Expedição</h3>
+                        
+                        <div class="form-group">
+                            <label>Nº do Pedido</label>
+                            <input type="text" id="delivery-order" class="royal-input" placeholder="Digite ou escaneie o número do pedido">
+                        </div>
+                        
+                        <div id="delivery-details" style="display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h4>Checklist de Expedição</h4>
+                                <div>
+                                    <span class="status-badge status-info" id="delivery-status">Preparando</span>
+                                </div>
+                            </div>
+                            
+                            <table class="items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Quantidade</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="delivery-items">
+                                    <!-- Itens serão adicionados dinamicamente -->
+                                </tbody>
+                            </table>
+                            
+                            <div style="margin-top: 1.5rem;">
+                                <div class="form-group">
+                                    <label>Transportadora</label>
+                                    <select id="carrier" class="royal-input">
+                                        <option value="">Selecione a transportadora</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Número de Rastreio</label>
+                                    <input type="text" id="tracking-number" class="royal-input">
+                                </div>
+                                
+                                <div id="nfe-preview" class="nfe-preview" style="display: none;">
+                                    <h5><i class="fas fa-file-invoice"></i> Pré-visualização da NFe</h5>
+                                    <div id="nfe-content"></div>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button id="generate-nfe" class="royal-btn royal-btn-outline">
+                                        <i class="fas fa-file-invoice"></i> Gerar NFe
+                                    </button>
+                                    <button id="confirm-delivery" class="royal-btn">
+                                        <i class="fas fa-check-double"></i> Confirmar Expedição
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Produtos -->
+                <div id="products-tab" class="tab-pane">
+                    <div class="inventory-card">
+                        <h3><i class="fas fa-boxes"></i> Todos os Produtos</h3>
+                        
+                        <div class="search-controls">
+                            <input type="text" id="products-search" class="royal-input" placeholder="Buscar produtos...">
+                            <button id="search-products-btn" class="royal-btn">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                            <button id="export-products" class="royal-btn royal-btn-outline export-btn">
+                                <i class="fas fa-file-export"></i> Exportar
+                            </button>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="items-table" id="products-table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nome</th>
+                                        <th>Descrição</th>
+                                        <th>Código de Barras</th>
+                                        <th>Estoque Total</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-list">
+                                    <!-- Produtos serão carregados dinamicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Nova Seção -->
+    <div class="modal" id="new-section-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-warehouse"></i> Nova Seção</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Nome da Seção</label>
+                <input type="text" id="section-name" class="royal-input" placeholder="Ex: Seção de Eletrônicos">
+            </div>
+            
+            <div class="form-group">
+                <label>Código</label>
+                <input type="text" id="section-code" class="royal-input" placeholder="Ex: SEC-ELET">
+            </div>
+            
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="section-description" class="royal-input" rows="3" placeholder="Descrição da seção"></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button id="cancel-section" class="royal-btn royal-btn-outline">Cancelar</button>
+                <button id="save-section" class="royal-btn">Salvar Seção</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Novo Corredor -->
+    <div class="modal" id="new-aisle-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-arrows-alt-h"></i> Novo Corredor</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Seção</label>
+                <select id="aisle-section" class="royal-input" disabled>
+                    <option value="">Selecione uma seção</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Nome do Corredor</label>
+                <input type="text" id="aisle-name" class="royal-input" placeholder="Ex: Corredor A">
+            </div>
+            
+            <div class="form-group">
+                <label>Número de Prateleiras</label>
+                <input type="number" id="aisle-shelves" class="royal-input" min="1" value="5">
+            </div>
+            
+            <div class="form-actions">
+                <button id="cancel-aisle" class="royal-btn royal-btn-outline">Cancelar</button>
+                <button id="save-aisle" class="royal-btn">Salvar Corredor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Novo Produto -->
+    <div class="modal" id="new-product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-box"></i> Novo Produto</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Código do Produto</label>
+                <input type="text" id="product-code" class="royal-input" placeholder="Ex: PROD-001">
+            </div>
+            
+            <div class="form-group">
+                <label>Nome do Produto</label>
+                <input type="text" id="product-name" class="royal-input" placeholder="Nome do produto">
+            </div>
+            
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="product-description" class="royal-input" rows="3" placeholder="Descrição detalhada do produto"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Código de Barras</label>
+                <div style="display: flex; gap: 1rem;">
+                    <input type="text" id="product-barcode" class="royal-input" style="flex: 1;" placeholder="Código de barras">
+                    <button id="generate-barcode" class="royal-btn">
+                        <i class="fas fa-barcode"></i> Gerar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button id="cancel-product" class="royal-btn royal-btn-outline">Cancelar</button>
+                <button id="save-product" class="royal-btn">Salvar Produto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Contestação -->
+    <div class="modal" id="contest-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Contestar Recebimento</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Motivo da Contestação</label>
+                <select id="contest-reason" class="royal-input">
+                    <option value="">Selecione o motivo</option>
+                    <option value="missing">Falta de itens</option>
+                    <option value="excess">Excesso de itens</option>
+                    <option value="damaged">Itens danificados</option>
+                    <option value="wrong">Itens incorretos</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="contest-description" class="royal-input" rows="5" placeholder="Descreva detalhadamente o problema encontrado"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Anexar Fotos</label>
+                <input type="file" id="contest-photos" multiple accept="image/*" class="royal-input">
+                <small style="color: rgba(212, 175, 55, 0.7);">Máx. 3 fotos (JPG, PNG)</small>
+            </div>
+            
+            <div class="form-actions">
+                <button id="cancel-contest" class="royal-btn royal-btn-outline">Cancelar</button>
+                <button id="submit-contest" class="royal-btn">Enviar Contestação</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Estado da aplicação
+const appState = {
+    currentSection: null,
+    currentAisle: null,
+    currentShelf: null,
+    currentReceiving: null,
+    currentOrder: null,
+    currentDelivery: null,
+    products: [],
+    sections: [],
+    aisles: [],
+    suppliers: [],
+    carriers: [],
+    inventory: [],
+    selectedProduct: null,
+    currentReceivingItems: [],
+    allProducts: []
+};
+
+// Configuração base da API
+const API_CONFIG = {
+    BASE_URL: 'http://localhost:3000/api/logistics',
+    AUTH_URL: 'http://localhost:3000/api'
+};
+
+// Cria partículas douradas
+function createGoldDust() {
+    const container = document.getElementById('goldDust');
+    if (!container) return;
+    
+    const particleCount = 30;
+    
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        const size = Math.random() * 3 + 1;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        
+        particle.style.animationDelay = `${Math.random() * 15}s`;
+        particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
+        
+        container.appendChild(particle);
+    }
+}
+
+// Função para verificar e obter o token de autenticação
+function getAuthToken() {
+    // Primeiro tenta pegar do parâmetro da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get('token');
+    
+    if (tokenFromUrl) {
+        localStorage.setItem('authToken', tokenFromUrl);
+        return tokenFromUrl;
+    }
+    
+    // Se não tiver na URL, tenta pegar do localStorage
+    const tokenFromStorage = localStorage.getItem('authToken');
+    
+    if (!tokenFromStorage) {
+        // Se não tiver token, redireciona para login
+        window.location.href = '/login.html';
+        return null;
+    }
+    
+    return tokenFromStorage;
+}
+
+// Função para fazer requisições à API com autenticação
+async function fetchAPI(endpoint, method = 'GET', body = null) {
+    const authToken = getAuthToken();
+    if (!authToken) {
+        window.location.href = '/login.html';
+        return;
+    }
+    
+    const url = endpoint.startsWith('auth/') 
+        ? `${API_CONFIG.AUTH_URL}/${endpoint.replace('auth/', '')}`
+        : `${API_CONFIG.BASE_URL}/${endpoint}`;
+    
+    const options = {
+        method,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+        }
+    };
+    
+    if (body) {
+        options.body = JSON.stringify(body);
+    }
+    
+    try {
+        const response = await fetch(url, options);
+        
+        if (!response.ok) {
+            // Se for erro 401 (não autorizado), redireciona para login
+            if (response.status === 401) {
+                localStorage.removeItem('authToken');
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Erro na requisição: ${response.statusText}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Erro na requisição:', error);
+        showAlert(`Erro na requisição: ${error.message}`, 'error');
+        throw error;
+    }
+}
+
+// Carrega dados do usuário
+async function loadUserData() {
+    try {
+        const data = await fetchAPI('auth/user');
+        
+        if (data.success) {
+            console.log('Usuário autenticado:', data.user);
+            return data.user;
+        } else {
+            throw new Error(data.message || 'Erro ao carregar dados do usuário');
+        }
+    } catch (error) {
+        console.error('Erro ao carregar dados do usuário:', error);
+        window.location.href = '/login.html';
+    }
+}
+
+// Mostra alerta na interface
+function showAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.textContent = message;
+    
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Configura as abas do sistema
+function setupTabs() {
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            const panes = document.querySelectorAll('.tab-pane');
+            panes.forEach(pane => pane.classList.remove('active'));
+            
+            const tabId = tab.getAttribute('data-tab');
+            const tabPane = document.getElementById(`${tabId}-tab`);
+            if (tabPane) tabPane.classList.add('active');
+        });
+    });
+}
+
+// Atualiza o select de fornecedores
+function updateSuppliersSelect() {
+    const select = document.getElementById('supplier');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">Selecione um fornecedor</option>';
+    
+    appState.suppliers.forEach(supplier => {
+        const option = document.createElement('option');
+        option.value = supplier._id;
+        option.textContent = `${supplier.name} (${supplier.code})`;
+        select.appendChild(option);
+    });
+}
+
+// Atualiza o select de seções
+function updateSectionsSelect() {
+    const select = document.getElementById('warehouse-section');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">Selecione uma seção</option>';
+    
+    appState.sections.forEach(section => {
+        const option = document.createElement('option');
+        option.value = section._id;
+        option.textContent = `${section.name} (${section.code})`;
+        select.appendChild(option);
+    });
+}
+
+// Atualiza o select de transportadoras
+function updateCarriersSelect() {
+    const select = document.getElementById('carrier');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">Selecione a transportadora</option>';
+    
+    appState.carriers.forEach(carrier => {
+        const option = document.createElement('option');
+        option.value = carrier._id;
+        option.textContent = `${carrier.name} (${carrier.code})`;
+        select.appendChild(option);
+    });
+}
+
+// Abre um modal específico
+function openModal(modalId) {
+    const modal = document.getElementById(`${modalId}-modal`);
+    if (modal) modal.style.display = 'flex';
+}
+
+// Fecha todos os modais
+function closeModal() {
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.style.display = 'none';
+    });
+}
+
+// Renderiza o mapa do armazém
+async function renderWarehouseMap(sectionId) {
+    try {
+        const section = appState.sections.find(s => s._id == sectionId);
+        const aisles = appState.aisles.filter(a => a.sectionId == sectionId);
+        const warehouseMap = document.getElementById('warehouse-map');
+        
+        if (!warehouseMap) return;
+        
+        let html = `
+            <h4>${section.name} - ${section.code}</h4>
+            <p>${section.description}</p>
+            <div class="aisles-container">
+        `;
+        
+        if (aisles.length === 0) {
+            html += `
+                <div class="empty-state">
+                    <i class="fas fa-arrows-alt-h"></i>
+                    <p>Nenhum corredor nesta seção</p>
+                </div>
+            `;
+        } else {
+            for (const aisle of aisles) {
+                html += `
+                    <div class="aisle" data-aisle-id="${aisle._id}">
+                        <h5>${aisle.name} (${aisle.code})</h5>
+                        <div class="shelves">
+                `;
+                
+                // Cria as prateleiras
+                for (let level = 1; level <= aisle.shelves; level++) {
+                    const shelfCode = `${level}`;
+                    
+                    // Busca itens nesta prateleira
+                    const itemsResponse = await fetchAPI(`inventory?aisleId=${aisle._id}&shelf=${shelfCode}`);
+                    const items = itemsResponse.data;
+                    
+                    html += `
+                        <div class="shelf" data-shelf="${shelfCode}">
+                            <span>Prateleira ${shelfCode}</span>
+                            <span>${items.length > 0 ? `${items.reduce((sum, item) => sum + item.quantity, 0)} itens` : 'Vazio'}</span>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        html += `</div>`;
+        warehouseMap.innerHTML = html;
+        
+        // Adiciona eventos aos corredores e prateleiras
+        document.querySelectorAll('.aisle').forEach(aisle => {
+            aisle.addEventListener('click', function() {
+                const aisleId = this.getAttribute('data-aisle-id');
+                const aisleData = appState.aisles.find(a => a._id == aisleId);
+                showLocationDetails(aisleData);
+            });
+        });
+        
+        document.querySelectorAll('.shelf').forEach(shelf => {
+            shelf.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const aisleId = this.closest('.aisle').getAttribute('data-aisle-id');
+                const shelfCode = this.getAttribute('data-shelf');
+                const aisleData = appState.aisles.find(a => a._id == aisleId);
+                
+                showLocationDetails({
+                    ...aisleData,
+                    shelf: shelfCode
+                });
+            });
+        });
+    } catch (error) {
+        console.error('Erro ao renderizar mapa do armazém:', error);
+        showAlert('Erro ao carregar mapa do armazém: ' + error.message, 'error');
+    }
+}
+
+// Mostra os detalhes de um local
+async function showLocationDetails(location) {
+    try {
+        const detailsDiv = document.getElementById('location-details');
+        const infoDiv = document.getElementById('location-info');
+        
+        if (!detailsDiv || !infoDiv) return;
+        
+        appState.currentAisle = location;
+        appState.currentShelf = location.shelf || null;
+        
+        if (location.shelf) {
+            // É uma prateleira - busca itens
+            const itemsResponse = await fetchAPI(`inventory?aisleId=${location._id}&shelf=${location.shelf}`);
+            const items = itemsResponse.data;
+            
+            infoDiv.innerHTML = `
+                <h5>${location.name} - Prateleira ${location.shelf}</h5>
+                <p><strong>Código:</strong> ${location.code}-${location.shelf}</p>
+                <p><strong>Total de itens:</strong> ${items.reduce((sum, item) => sum + item.quantity, 0)}</p>
+            `;
+            
+            // Atualiza a lista de itens
+            const itemsList = document.getElementById('location-items-list');
+            if (itemsList) {
+                itemsList.innerHTML = '';
+                
+                for (const item of items) {
+                    // Busca detalhes do produto
+                    const productResponse = await fetchAPI(`products/${item.productId}`);
+                    const product = productResponse.data || { 
+                        name: 'Produto não encontrado', 
+                        code: 'N/A' 
+                    };
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${product.name} (${product.code})</td>
+                        <td>${item.quantity}</td>
+                        <td>
+                            <button class="royal-btn royal-btn-outline btn-remove-item" data-item-id="${item._id}" style="padding: 0.3rem 0.5rem;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    itemsList.appendChild(row);
+                    
+                    // Adiciona evento ao botão de remover
+                    row.querySelector('.btn-remove-item')?.addEventListener('click', function() {
+                        const itemId = this.getAttribute('data-item-id');
+                        removeItemFromLocation(itemId);
+                    });
+                }
+            }
+            
+            const locationItems = document.getElementById('location-items');
+            if (locationItems) locationItems.style.display = 'block';
+        } else {
+            // É um corredor - busca itens
+            const itemsResponse = await fetchAPI(`inventory?aisleId=${location._id}`);
+            const items = itemsResponse.data;
+            
+            infoDiv.innerHTML = `
+                <h5>${location.name}</h5>
+                <p><strong>Código:</strong> ${location.code}</p>
+                <p><strong>Prateleiras:</strong> ${location.shelves}</p>
+                <p><strong>Total de itens:</strong> ${items.reduce((sum, item) => sum + item.quantity, 0)}</p>
+            `;
+            
+            const locationItems = document.getElementById('location-items');
+            if (locationItems) locationItems.style.display = 'none';
+        }
+        
+        detailsDiv.style.display = 'block';
+    } catch (error) {
+        console.error('Erro ao mostrar detalhes do local:', error);
+        showAlert('Erro ao carregar detalhes do local: ' + error.message, 'error');
+    }
+}
+
+// Busca produtos para adicionar ao local
+async function searchProducts() {
+    try {
+        const searchTerm = document.getElementById('item-search')?.value.toLowerCase();
+        const resultsDiv = document.getElementById('product-results');
+        
+        if (!searchTerm || !resultsDiv) {
+            if (resultsDiv) resultsDiv.style.display = 'none';
+            return;
+        }
+        
+        const response = await fetchAPI(`products?search=${encodeURIComponent(searchTerm)}`);
+        const filteredProducts = response.data;
+        
+        resultsDiv.innerHTML = '';
+        
+        if (filteredProducts.length === 0) {
+            resultsDiv.innerHTML = '<div class="empty-state">Nenhum produto encontrado</div>';
+        } else {
+            filteredProducts.forEach(product => {
+                const item = document.createElement('div');
+                item.className = 'product-result-item';
+                item.innerHTML = `
+                    <strong>${product.name}</strong> (${product.code})
+                    <div style="font-size: 0.8rem; color: rgba(212, 175, 55, 0.7);">${product.description}</div>
+                `;
+                item.addEventListener('click', () => {
+                    const itemSearch = document.getElementById('item-search');
+                    if (itemSearch) itemSearch.value = `${product.name} (${product.code})`;
+                    appState.selectedProduct = product;
+                    resultsDiv.style.display = 'none';
+                });
+                resultsDiv.appendChild(item);
+            });
+        }
+        
+        resultsDiv.style.display = 'block';
+    } catch (error) {
+        console.error('Erro na busca de produtos:', error);
+        showAlert('Erro na busca de produtos: ' + error.message, 'error');
+    }
+}
+
+// Adiciona um item ao local selecionado
+async function addItemToLocation() {
+    try {
+        if (!appState.selectedProduct) {
+            throw new Error('Selecione um produto primeiro');
+        }
+        
+        const quantityInput = document.getElementById('item-quantity');
+        if (!quantityInput) return;
+        
+        const quantity = parseInt(quantityInput.value);
+        
+        if (!quantity || quantity <= 0) {
+            throw new Error('Informe uma quantidade válida');
+        }
+        
+        const itemData = {
+            productId: appState.selectedProduct._id,
+            aisleId: appState.currentAisle._id,
+            shelf: appState.currentShelf,
+            quantity: quantity
+        };
+        
+        // Envia para a API
+        const response = await fetchAPI('inventory', 'POST', itemData);
+        
+        // Atualiza a exibição
+        await showLocationDetails(appState.currentAisle);
+        
+        // Limpa o formulário
+        const itemSearch = document.getElementById('item-search');
+        if (itemSearch) itemSearch.value = '';
+        if (quantityInput) quantityInput.value = '';
+        
+        const productResults = document.getElementById('product-results');
+        if (productResults) productResults.style.display = 'none';
+        
+        appState.selectedProduct = null;
+        
+        showAlert('Item adicionado com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao adicionar item:', error);
+        showAlert('Erro ao adicionar item: ' + error.message, 'error');
+    }
+}
+
+// Remove um item do local
+async function removeItemFromLocation(itemId) {
+    try {
+        if (confirm('Tem certeza que deseja remover este item do local?')) {
+            await fetchAPI(`inventory/${itemId}`, 'DELETE');
+            await showLocationDetails(appState.currentAisle);
+            showAlert('Item removido com sucesso!', 'success');
+        }
+    } catch (error) {
+        console.error('Erro ao remover item:', error);
+        showAlert('Erro ao remover item: ' + error.message, 'error');
+    }
+}
+
+// Salva uma nova seção
+async function saveSection() {
+    try {
+        const name = document.getElementById('section-name')?.value;
+        const code = document.getElementById('section-code')?.value;
+        const description = document.getElementById('section-description')?.value;
+        
+        if (!name || !code) {
+            throw new Error('Nome e código são obrigatórios');
+        }
+        
+        const sectionData = {
+            name,
+            code,
+            description
+        };
+        
+        const response = await fetchAPI('sections', 'POST', sectionData);
+        appState.sections.push(response.data);
+        
+        updateSectionsSelect();
+        closeModal();
+        
+        // Seleciona automaticamente a nova seção
+        const warehouseSection = document.getElementById('warehouse-section');
+        if (warehouseSection) {
+            warehouseSection.value = response.data._id;
+            warehouseSection.dispatchEvent(new Event('change'));
+        }
+        
+        showAlert('Seção criada com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao criar seção:', error);
+        showAlert('Erro ao criar seção: ' + error.message, 'error');
+    }
+}
+
+// Salva um novo corredor
+async function saveAisle() {
+    try {
+        const sectionId = document.getElementById('aisle-section')?.value;
+        const name = document.getElementById('aisle-name')?.value;
+        const shelves = parseInt(document.getElementById('aisle-shelves')?.value);
+        
+        if (!sectionId || !name || !shelves) {
+            throw new Error('Preencha todos os campos corretamente');
+        }
+        
+        const aisleData = {
+            sectionId,
+            name,
+            shelves
+        };
+        
+        const response = await fetchAPI('aisles', 'POST', aisleData);
+        appState.aisles.push(response.data);
+        
+        // Atualiza o mapa do armazém
+        await renderWarehouseMap(sectionId);
+        closeModal();
+        
+        showAlert('Corredor criado com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao criar corredor:', error);
+        showAlert('Erro ao criar corredor: ' + error.message, 'error');
+    }
+}
+
+// Carrega todos os produtos para a aba de produtos
+async function loadAllProducts() {
+    try {
+        const response = await fetchAPI('products?limit=1000');
+        appState.allProducts = response.data;
+        renderProductsTable(appState.allProducts);
+    } catch (error) {
+        console.error('Erro ao carregar produtos:', error);
+        showAlert('Erro ao carregar produtos: ' + error.message, 'error');
+    }
+}
+
+// Renderiza a tabela de produtos
+async function renderProductsTable(products) {
+    const tbody = document.getElementById('products-list');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    if (products.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <p>Nenhum produto encontrado</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    for (const product of products) {
+        // Busca o estoque total do produto
+        let totalStock = 0;
+        try {
+            const inventoryResponse = await fetchAPI(`inventory?productId=${product._id}`);
+            totalStock = inventoryResponse.data.reduce((sum, item) => sum + item.quantity, 0);
+        } catch (error) {
+            console.error('Erro ao buscar estoque:', error);
+        }
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${product.code}</td>
+            <td>${product.name}</td>
+            <td>${product.description || '-'}</td>
+            <td>${product.barcode || '-'}</td>
+            <td>${totalStock}</td>
+            <td>
+                <button class="royal-btn royal-btn-outline btn-edit-product" data-product-id="${product._id}" style="padding: 0.3rem 0.5rem;">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="royal-btn royal-btn-outline btn-delete-product" data-product-id="${product._id}" style="padding: 0.3rem 0.5rem;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+        
+        // Adiciona eventos aos botões
+        row.querySelector('.btn-edit-product')?.addEventListener('click', () => {
+            editProduct(product._id);
+        });
+        
+        row.querySelector('.btn-delete-product')?.addEventListener('click', () => {
+            deleteProduct(product._id);
+        });
+    }
+}
+
+// Edita um produto
+async function editProduct(productId) {
+    try {
+        const product = appState.allProducts.find(p => p._id === productId);
+        if (!product) {
+            throw new Error('Produto não encontrado');
+        }
+        
+        // Preenche o modal com os dados do produto
+        document.getElementById('product-code').value = product.code;
+        document.getElementById('product-name').value = product.name;
+        document.getElementById('product-description').value = product.description || '';
+        document.getElementById('product-barcode').value = product.barcode || '';
+        
+        // Altera o botão de salvar para atualizar
+        const saveBtn = document.getElementById('save-product');
+        if (saveBtn) {
+            saveBtn.textContent = 'Atualizar Produto';
+            saveBtn.setAttribute('data-product-id', productId);
+        }
+        
+        openModal('new-product');
+    } catch (error) {
+        console.error('Erro ao editar produto:', error);
+        showAlert('Erro ao editar produto: ' + error.message, 'error');
+    }
+}
+
+// Deleta um produto
+async function deleteProduct(productId) {
+    try {
+        if (!confirm('Tem certeza que deseja excluir este produto?')) {
+            return;
+        }
+        
+        await fetchAPI(`products/${productId}`, 'DELETE');
+        showAlert('Produto excluído com sucesso!', 'success');
+        
+        // Atualiza a lista de produtos
+        await loadAllProducts();
+    } catch (error) {
+        console.error('Erro ao excluir produto:', error);
+        showAlert('Erro ao excluir produto: ' + error.message, 'error');
+    }
+}
+
+// Busca produtos na tabela
+function searchProductsTable() {
+    const searchTerm = document.getElementById('products-search')?.value.toLowerCase();
+    if (!searchTerm) return;
+    
+    const filteredProducts = appState.allProducts.filter(product => 
+        product.code.toLowerCase().includes(searchTerm) ||
+        product.name.toLowerCase().includes(searchTerm) ||
+        (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+        (product.barcode && product.barcode.toLowerCase().includes(searchTerm))
+    );
+    
+    renderProductsTable(filteredProducts);
+}
+
+// Exporta produtos para CSV
+function exportProductsToCSV() {
+    const headers = ['Código', 'Nome', 'Descrição', 'Código de Barras'];
+    const rows = appState.allProducts.map(product => [
+        product.code,
+        product.name,
+        product.description || '',
+        product.barcode || ''
+    ]);
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += headers.join(",") + "\n";
+    rows.forEach(row => {
+        csvContent += row.map(field => `"${field}"`).join(",") + "\n";
+    });
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "produtos.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Salva um produto (cria ou atualiza)
+async function saveProduct() {
+    try {
+        const codeInput = document.getElementById('product-code');
+        const nameInput = document.getElementById('product-name');
+        const descriptionInput = document.getElementById('product-description');
+        const barcodeInput = document.getElementById('product-barcode');
+        
+        const code = codeInput?.value.trim();
+        const name = nameInput?.value.trim();
+        const description = descriptionInput?.value.trim();
+        const barcode = barcodeInput?.value.trim();
+        
+        // Validação básica
+        if (!code) {
+            codeInput?.focus();
+            throw new Error('O código do produto é obrigatório');
+        }
+        
+        if (!name) {
+            nameInput?.focus();
+            throw new Error('O nome do produto é obrigatório');
+        }
+        
+        // Verifica se é atualização
+        const saveBtn = document.getElementById('save-product');
+        const isUpdate = saveBtn?.hasAttribute('data-product-id');
+        
+        const productData = {
+            code,
+            name,
+            description,
+            barcode: barcode || `INTERNO-${code}`
+        };
+        
+        let response;
+        
+        if (isUpdate) {
+            const productId = saveBtn.getAttribute('data-product-id');
+            response = await fetchAPI(`products/${productId}`, 'PUT', productData);
+            
+            // Atualiza na lista de produtos
+            const index = appState.allProducts.findIndex(p => p._id === productId);
+            if (index >= 0) {
+                appState.allProducts[index] = response.data;
+            }
+        } else {
+            response = await fetchAPI('products', 'POST', productData);
+            appState.allProducts.push(response.data);
+        }
+        
+        // Atualiza a tabela
+        renderProductsTable(appState.allProducts);
+        closeModal();
+        showAlert(`Produto ${isUpdate ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
+    } catch (error) {
+        console.error('Erro ao salvar produto:', error);
+        showAlert(error.message, 'error');
+    }
+}
+
+// Gera um código de barras aleatório
+function generateBarcode() {
+    const randomBarcode = Math.floor(1000000000000 + Math.random() * 9000000000000);
+    const barcodeInput = document.getElementById('product-barcode');
+    if (barcodeInput) barcodeInput.value = randomBarcode.toString();
+}
+
+// Simula o escaneamento de código de barras
+async function scanBarcode() {
+    try {
+        const barcode = prompt("Digite ou escaneie o código de barras:");
+        if (barcode) {
+            // Verifica se é um produto existente
+            const productsResponse = await fetchAPI(`products?search=${barcode}`);
+            const product = productsResponse.data.find(p => p.barcode === barcode);
+            
+            if (product) {
+                addProductToReceiving(product);
+            } else {
+                // Se não existir, pergunta se deseja cadastrar
+                if (confirm('Produto não encontrado. Deseja cadastrar um novo produto?')) {
+                    openModal('new-product');
+                    const barcodeInput = document.getElementById('product-barcode');
+                    if (barcodeInput) barcodeInput.value = barcode;
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao escanear código de barras:', error);
+        showAlert('Erro ao escanear código de barras: ' + error.message, 'error');
+    }
+}
+
+// Adiciona um produto à lista de recebimento
+function addProductToReceiving(product) {
+    const tbody = document.getElementById('receiving-items');
+    if (!tbody) return;
+    
+    // Verifica se o produto já foi adicionado
+    if (appState.currentReceivingItems.some(item => item.productId === product._id)) {
+        showAlert('Este produto já foi adicionado ao recebimento', 'warning');
+        return;
+    }
+    
+    const row = document.createElement('tr');
+    row.setAttribute('data-product-id', product._id);
+    row.innerHTML = `
+        <td>${product.name} (${product.code})</td>
+        <td><input type="number" class="royal-input expected-qty" value="1" min="1" style="width: 80px;"></td>
+        <td><input type="number" class="royal-input received-qty" value="0" min="0" style="width: 80px;"></td>
+        <td class="difference">0</td>
+        <td><span class="status-badge status-warning">Pendente</span></td>
+        <td>
+            <button class="royal-btn royal-btn-outline btn-remove-receiving-item" style="padding: 0.3rem 0.5rem;">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
+    
+    tbody.appendChild(row);
+    
+    // Adiciona ao estado
+    appState.currentReceivingItems.push({
+        productId: product._id,
+        expectedQty: 1,
+        receivedQty: 0,
+        status: 'pending'
+    });
+    
+    // Adiciona eventos aos inputs
+    row.querySelector('.expected-qty')?.addEventListener('change', updateReceivingItem);
+    row.querySelector('.received-qty')?.addEventListener('change', updateReceivingItem);
+    
+    // Adiciona evento ao botão de remover
+    row.querySelector('.btn-remove-receiving-item')?.addEventListener('click', function() {
+        const productId = row.getAttribute('data-product-id');
+        appState.currentReceivingItems = appState.currentReceivingItems.filter(item => item.productId !== productId);
+        row.remove();
+    });
+}
+
+// Atualiza um item do recebimento
+function updateReceivingItem(e) {
+    const row = e.target.closest('tr');
+    if (!row) return;
+    
+    const productId = row.getAttribute('data-product-id');
+    const expectedQty = parseInt(row.querySelector('.expected-qty')?.value) || 0;
+    const receivedQty = parseInt(row.querySelector('.received-qty')?.value) || 0;
+    const difference = receivedQty - expectedQty;
+    
+    // Atualiza a diferença
+    const differenceCell = row.querySelector('.difference');
+    if (differenceCell) differenceCell.textContent = difference;
+    
+    // Atualiza o status
+    const statusBadge = row.querySelector('.status-badge');
+    
+    let status = 'pending';
+    let statusClass = 'status-warning';
+    let statusText = 'Pendente';
+    
+    if (receivedQty === 0) {
+        status = 'pending';
+        statusClass = 'status-warning';
+        statusText = 'Pendente';
+    } else if (difference === 0) {
+        status = 'received';
+        statusClass = 'status-success';
+        statusText = 'Recebido';
+    } else if (difference > 0) {
+        status = 'excess';
+        statusClass = 'status-danger';
+        statusText = 'Excesso';
+    } else {
+        status = 'missing';
+        statusClass = 'status-danger';
+        statusText = 'Falta';
+    }
+    
+    if (statusBadge) {
+        statusBadge.className = `status-badge ${statusClass}`;
+        statusBadge.textContent = statusText;
+    }
+    
+    // Atualiza no estado
+    const itemIndex = appState.currentReceivingItems.findIndex(item => item.productId === productId);
+    if (itemIndex >= 0) {
+        appState.currentReceivingItems[itemIndex] = {
+            ...appState.currentReceivingItems[itemIndex],
+            expectedQty,
+            receivedQty,
+            status
+        };
+    }
+}
+
+// Abre o modal de contestação
+function openContestModal() {
+    // Verifica se há itens com problemas
+    const hasProblems = appState.currentReceivingItems.some(item => 
+        item.status === 'missing' || item.status === 'excess'
+    );
+    
+    if (!hasProblems) {
+        showAlert('Não há itens com divergência para contestar', 'warning');
+        return;
+    }
+    
+    openModal('contest');
+}
+
+// Envia a contestação
+async function submitContest() {
+    try {
+        const reason = document.getElementById('contest-reason')?.value;
+        const description = document.getElementById('contest-description')?.value;
+        
+        if (!reason || !description) {
+            throw new Error('Preencha o motivo e a descrição da contestação');
+        }
+        
+        // Marca os itens problemáticos como contestados
+        appState.currentReceivingItems.forEach(item => {
+            if (item.status === 'missing' || item.status === 'excess') {
+                item.contested = true;
+                item.contestReason = reason;
+                item.contestDescription = description;
+            }
+        });
+        
+        closeModal();
+        showAlert('Contestação registrada com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao enviar contestação:', error);
+        showAlert('Erro ao enviar contestação: ' + error.message, 'error');
+    }
+}
+
+// Confirma o recebimento
+async function confirmReceiving() {
+    try {
+        const invoiceNumberInput = document.getElementById('invoice-number');
+        const supplierSelect = document.getElementById('supplier');
+        
+        const invoiceNumber = invoiceNumberInput?.value.trim();
+        const supplierId = supplierSelect?.value;
+        
+        if (!invoiceNumber || !supplierId) {
+            if (!invoiceNumber) invoiceNumberInput?.focus();
+            else if (!supplierId) supplierSelect?.focus();
+            
+            throw new Error('Preencha todos os campos obrigatórios:\n' +
+                           (!invoiceNumber ? '- Número da nota fiscal\n' : '') +
+                           (!supplierId ? '- Fornecedor' : ''));
+        }
+        
+        if (appState.currentReceivingItems.length === 0) {
+            throw new Error('Adicione pelo menos um item ao recebimento');
+        }
+        
+        // Cria o recebimento
+        const receivingData = {
+            invoiceNumber,
+            supplierId,
+            items: appState.currentReceivingItems.map(item => ({
+                productId: item.productId,
+                expectedQty: item.expectedQty,
+                receivedQty: item.receivedQty
+            }))
+        };
+        
+        const response = await fetchAPI('receivings', 'POST', receivingData);
+        
+        // Limpa o formulário
+        if (invoiceNumberInput) invoiceNumberInput.value = '';
+        if (supplierSelect) supplierSelect.value = '';
+        
+        const tbody = document.getElementById('receiving-items');
+        if (tbody) tbody.innerHTML = '';
+        
+        appState.currentReceivingItems = [];
+        
+        showAlert('Recebimento confirmado com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao confirmar recebimento:', error);
+        showAlert(error.message, 'error');
+    }
+}
+
+// Configura os event listeners
+function setupEventListeners() {
+    // Nova seção
+    const addSectionBtn = document.getElementById('add-section');
+    if (addSectionBtn) {
+        addSectionBtn.addEventListener('click', () => {
+            openModal('new-section');
+        });
+    }
+    
+    // Novo corredor
+    const addAisleBtn = document.getElementById('add-aisle');
+    if (addAisleBtn) {
+        addAisleBtn.addEventListener('click', () => {
+            openModal('new-aisle');
+        });
+    }
+    
+    // Seleção de seção
+    const warehouseSection = document.getElementById('warehouse-section');
+    if (warehouseSection) {
+        warehouseSection.addEventListener('change', async function() {
+            const sectionId = this.value;
+            if (sectionId) {
+                try {
+                    const section = appState.sections.find(s => s._id == sectionId);
+                    appState.currentSection = section;
+                    
+                    // Carrega os corredores desta seção
+                    const aislesData = await fetchAPI(`aisles?sectionId=${sectionId}`);
+                    appState.aisles = aislesData.data;
+                    
+                    renderWarehouseMap(sectionId);
+                    const aisleControls = document.getElementById('aisle-controls');
+                    if (aisleControls) aisleControls.style.display = 'block';
+                    
+                    // Atualiza o select de seção no modal de corredor
+                    const aisleSectionSelect = document.getElementById('aisle-section');
+                    if (aisleSectionSelect) {
+                        aisleSectionSelect.innerHTML = '';
+                        const option = document.createElement('option');
+                        option.value = section._id;
+                        option.textContent = `${section.name} (${section.code})`;
+                        aisleSectionSelect.appendChild(option);
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar corredores:', error);
+                    showAlert('Erro ao carregar corredores: ' + error.message, 'error');
+                }
+            } else {
+                const warehouseMap = document.getElementById('warehouse-map');
+                if (warehouseMap) {
+                    warehouseMap.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-warehouse"></i>
+                            <p>Selecione uma seção para visualizar o armazém</p>
+                        </div>
+                    `;
+                }
+                const aisleControls = document.getElementById('aisle-controls');
+                if (aisleControls) aisleControls.style.display = 'none';
+            }
+        });
+    }
+    
+    // Busca de produtos
+    const searchProductBtn = document.getElementById('search-product');
+    if (searchProductBtn) {
+        searchProductBtn.addEventListener('click', searchProducts);
+    }
+    
+    const itemSearch = document.getElementById('item-search');
+    if (itemSearch) {
+        itemSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchProducts();
+        });
+    }
+    
+    // Busca na tabela de produtos
+    const searchProductsBtn = document.getElementById('search-products-btn');
+    if (searchProductsBtn) {
+        searchProductsBtn.addEventListener('click', searchProductsTable);
+    }
+    
+    const productsSearch = document.getElementById('products-search');
+    if (productsSearch) {
+        productsSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchProductsTable();
+        });
+    }
+    
+    // Exportar produtos
+    const exportProductsBtn = document.getElementById('export-products');
+    if (exportProductsBtn) {
+        exportProductsBtn.addEventListener('click', exportProductsToCSV);
+    }
+    
+    // Adicionar item ao local
+    const addItemBtn = document.getElementById('add-item');
+    if (addItemBtn) {
+        addItemBtn.addEventListener('click', addItemToLocation);
+    }
+    
+    // Salvar seção
+    const saveSectionBtn = document.getElementById('save-section');
+    if (saveSectionBtn) {
+        saveSectionBtn.addEventListener('click', saveSection);
+    }
+    
+    // Salvar corredor
+    const saveAisleBtn = document.getElementById('save-aisle');
+    if (saveAisleBtn) {
+        saveAisleBtn.addEventListener('click', saveAisle);
+    }
+    
+    // Cadastrar novo produto
+    const addProductBtn = document.getElementById('add-product');
+    if (addProductBtn) {
+        addProductBtn.addEventListener('click', () => {
+            // Reseta o formulário de produto
+            document.getElementById('product-code').value = '';
+            document.getElementById('product-name').value = '';
+            document.getElementById('product-description').value = '';
+            document.getElementById('product-barcode').value = '';
+            
+            // Altera o botão de salvar para criar
+            const saveBtn = document.getElementById('save-product');
+            if (saveBtn) {
+                saveBtn.textContent = 'Salvar Produto';
+                saveBtn.removeAttribute('data-product-id');
+            }
+            
+            openModal('new-product');
+        });
+    }
+    
+    // Salvar produto
+    const saveProductBtn = document.getElementById('save-product');
+    if (saveProductBtn) {
+        saveProductBtn.addEventListener('click', saveProduct);
+    }
+    
+    // Gerar código de barras
+    const generateBarcodeBtn = document.getElementById('generate-barcode');
+    if (generateBarcodeBtn) {
+        generateBarcodeBtn.addEventListener('click', generateBarcode);
+    }
+    
+    // Escanear código de barras
+    const scanBarcodeBtn = document.getElementById('scan-barcode');
+    if (scanBarcodeBtn) {
+        scanBarcodeBtn.addEventListener('click', scanBarcode);
+    }
+    
+    // Contestar recebimento
+    const contestReceivingBtn = document.getElementById('contest-receiving');
+    if (contestReceivingBtn) {
+        contestReceivingBtn.addEventListener('click', openContestModal);
+    }
+    
+    // Enviar contestação
+    const submitContestBtn = document.getElementById('submit-contest');
+    if (submitContestBtn) {
+        submitContestBtn.addEventListener('click', submitContest);
+    }
+    
+    // Confirmar recebimento
+    const saveReceivingBtn = document.getElementById('save-receiving');
+    if (saveReceivingBtn) {
+        saveReceivingBtn.addEventListener('click', confirmReceiving);
+    }
+    
+    // Fechar modais
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+    });
+    
+    document.querySelectorAll('[id^="cancel-"]').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+    });
+}
+
+// Carrega dados iniciais
+async function loadInitialData() {
+    try {
+        // Carrega produtos
+        const productsData = await fetchAPI('products');
+        appState.products = productsData.data;
+        
+        // Carrega fornecedores
+        const suppliersData = await fetchAPI('suppliers');
+        appState.suppliers = suppliersData.data;
+        updateSuppliersSelect();
+        
+        // Carrega transportadoras
+        const carriersData = await fetchAPI('carriers');
+        appState.carriers = carriersData.data;
+        updateCarriersSelect();
+        
+        // Carrega seções do armazém
+        const sectionsData = await fetchAPI('sections');
+        appState.sections = sectionsData.data;
+        updateSectionsSelect();
+        
+        // Carrega corredores
+        const aislesData = await fetchAPI('aisles');
+        appState.aisles = aislesData.data;
+        
+        // Carrega itens de estoque
+        const inventoryData = await fetchAPI('inventory');
+        appState.inventory = inventoryData.data;
+        
+    } catch (error) {
+        console.error('Erro ao carregar dados iniciais:', error);
+        showAlert('Erro ao carregar dados iniciais: ' + error.message, 'error');
+    }
+}
+
+// Função para inicializar o sistema
+async function initInventorySystem() {
+    // Verificar e obter token de autenticação
+    const authToken = getAuthToken();
+    if (!authToken) return;
+    
+    // Carregar dados do usuário
+    await loadUserData();
+    
+    // Criar partículas
+    createGoldDust();
+    
+    // Configurar abas
+    setupTabs();
+    
+    // Carregar dados iniciais
+    await loadInitialData();
+    
+    // Configurar eventos
+    setupEventListeners();
+    
+    // Carrega todos os produtos para a aba de produtos
+    await loadAllProducts();
+}
+
+// Inicializa o sistema quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', initInventorySystem);
+    </script>
+</body>
+</html>

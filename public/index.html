@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Croesus ERP | Loading</title>
+    <style>
+        :root {
+            --gold-primary: #FFD700;
+            --gold-secondary: #D4AF37;
+            --gold-dark: #996515;
+            --black-marble: #121212;
+            --white-marble: #F0F0F0;
+            --vein-color: rgba(255, 215, 0, 0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--black-marble);
+            color: var(--white-marble);
+            font-family: 'Montserrat', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            background-color: var(--gold-primary);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float 15s infinite linear;
+        }
+        
+        .loading-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+            background: radial-gradient(circle at center, 
+                      rgba(18, 18, 18, 0.9) 0%, 
+                      rgba(18, 18, 18, 0.95) 100%);
+        }
+        
+        .logo-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-bottom: 40px;
+            transform-style: preserve-3d;
+            animation: floatLogo 6s ease-in-out infinite;
+        }
+        
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+        }
+        
+        .loading-bar-container {
+            width: 300px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 30px;
+        }
+        
+        .loading-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, 
+                      var(--gold-dark), 
+                      var(--gold-primary), 
+                      var(--gold-dark));
+            background-size: 200% 100%;
+            animation: loadingBar 2.5s ease-in-out infinite, 
+                       gradientShift 3s ease infinite;
+            border-radius: 2px;
+        }
+        
+        .loading-text {
+            margin-top: 30px;
+            font-size: 18px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--gold-primary);
+            position: relative;
+            text-align: center;
+        }
+        
+        .loading-text::after {
+            content: '';
+            animation: loadingDots 1.5s steps(5, end) infinite;
+        }
+        
+        .marble-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(135deg, 
+                    rgba(18, 18, 18, 0.8) 0%, 
+                    rgba(18, 18, 18, 0.9) 100%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M30,10 Q50,5 70,10 T90,30 Q95,50 90,70 T70,90 Q50,95 30,90 T10,70 Q5,50 10,30 T30,10" fill="none" stroke="%23D4AF37" stroke-width="0.5" opacity="0.05"/></svg>');
+            z-index: -1;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes floatLogo {
+            0%, 100% {
+                transform: translateY(0) rotateY(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotateY(10deg);
+            }
+        }
+        
+        @keyframes loadingBar {
+            0% {
+                width: 0%;
+                left: 0;
+            }
+            50% {
+                width: 100%;
+                left: 0;
+            }
+            100% {
+                width: 0%;
+                left: 100%;
+            }
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        @keyframes loadingDots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    <div class="marble-overlay"></div>
+    
+    <div class="loading-container">
+        <div class="logo-container">
+            <img src="img/Logo 2 hd.png" alt="Croesus ERP" class="logo-img">
+        </div>
+        
+        <div class="loading-bar-container">
+            <div class="loading-bar"></div>
+        </div>
+        
+        <div class="loading-text">Inicializando o Tesouro Real</div>
+    </div>
+    
+    <script>
+        // Cria partículas douradas flutuantes
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Tamanho aleatório entre 2px e 6px
+                const size = Math.random() * 4 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Posição inicial aleatória
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Atraso e duração da animação
+                particle.style.animationDelay = `${Math.random() * 15}s`;
+                particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Inicia as partículas
+        createParticles();
+        
+        // Simula um tempo de carregamento e redireciona para o login
+        setTimeout(() => {
+            // Efeito de transição
+            document.querySelector('.loading-container').style.opacity = '0';
+            document.querySelector('.loading-container').style.transform = 'translateY(-20px)';
+            document.querySelector('.loading-container').style.transition = 'all 0.8s ease';
+            
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 800);
+        }, 4000);
+    </script>
+</body>
+</html>

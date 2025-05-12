@@ -291,19 +291,21 @@
         }
 
         .warehouse-map {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
 
-        .aisle {
-            background: rgba(30, 30, 30, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 6px;
-            padding: 1rem;
-            cursor: pointer;
-        }
+.aisle {
+    background: rgba(30, 30, 30, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 6px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 150px;
+}
 
         .aisle:hover {
             border-color: var(--gold-primary);
@@ -315,12 +317,27 @@
         }
 
         .shelf {
-            background: rgba(212, 175, 55, 0.1);
-            border-radius: 4px;
-            padding: 0.5rem;
-            margin-top: 0.5rem;
-            font-size: 0.8rem;
-        }
+    background: rgba(212, 175, 55, 0.1);
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+
+.shelf-items {
+    font-size: 0.7rem;
+    color: rgba(212, 175, 55, 0.7);
+    margin-top: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 
         .modal {
             display: none;
@@ -915,233 +932,233 @@
 
     <script>
     // Estado da aplicação
-const appState = {
-    currentSection: null,
-    currentAisle: null,
-    currentShelf: null,
-    currentReceiving: null,
-    currentOrder: null,
-    currentDelivery: null,
-    products: [],
-    sections: [],
-    aisles: [],
-    suppliers: [],
-    carriers: [],
-    inventory: [],
-    selectedProduct: null,
-    currentReceivingItems: [],
-    allProducts: []
-};
-
-// Configuração base da API
-const API_CONFIG = {
-    BASE_URL: 'http://localhost:3000/api/logistics',
-    AUTH_URL: 'http://localhost:3000/api'
-};
-
-// Cria partículas douradas
-function createGoldDust() {
-    const container = document.getElementById('goldDust');
-    if (!container) return;
-    
-    const particleCount = 30;
-    
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.classList.add('particle');
-        
-        const size = Math.random() * 3 + 1;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        
-        particle.style.left = `${Math.random() * 100}%`;
-        particle.style.top = `${Math.random() * 100}%`;
-        
-        particle.style.animationDelay = `${Math.random() * 15}s`;
-        particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
-        
-        container.appendChild(particle);
-    }
-}
-
-// Função para verificar e obter o token de autenticação
-function getAuthToken() {
-    // Primeiro tenta pegar do parâmetro da URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const tokenFromUrl = urlParams.get('token');
-    
-    if (tokenFromUrl) {
-        localStorage.setItem('authToken', tokenFromUrl);
-        return tokenFromUrl;
-    }
-    
-    // Se não tiver na URL, tenta pegar do localStorage
-    const tokenFromStorage = localStorage.getItem('authToken');
-    
-    if (!tokenFromStorage) {
-        // Se não tiver token, redireciona para login
-        window.location.href = '/login.html';
-        return null;
-    }
-    
-    return tokenFromStorage;
-}
-
-// Função para fazer requisições à API com autenticação
-async function fetchAPI(endpoint, method = 'GET', body = null) {
-    const authToken = getAuthToken();
-    if (!authToken) {
-        window.location.href = '/login.html';
-        return;
-    }
-    
-    const url = endpoint.startsWith('auth/') 
-        ? `${API_CONFIG.AUTH_URL}/${endpoint.replace('auth/', '')}`
-        : `${API_CONFIG.BASE_URL}/${endpoint}`;
-    
-    const options = {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-        }
+    const appState = {
+        currentSection: null,
+        currentAisle: null,
+        currentShelf: null,
+        currentReceiving: null,
+        currentOrder: null,
+        currentDelivery: null,
+        products: [],
+        sections: [],
+        aisles: [],
+        suppliers: [],
+        carriers: [],
+        inventory: [],
+        selectedProduct: null,
+        currentReceivingItems: [],
+        allProducts: []
     };
-    
-    if (body) {
-        options.body = JSON.stringify(body);
-    }
-    
-    try {
-        const response = await fetch(url, options);
+
+    // Configuração base da API
+    const API_CONFIG = {
+        BASE_URL: 'http://localhost:3000/api/logistics',
+        AUTH_URL: 'http://localhost:3000/api'
+    };
+
+    // Cria partículas douradas
+    function createGoldDust() {
+        const container = document.getElementById('goldDust');
+        if (!container) return;
         
-        if (!response.ok) {
-            // Se for erro 401 (não autorizado), redireciona para login
-            if (response.status === 401) {
-                localStorage.removeItem('authToken');
-                window.location.href = '/login.html';
-                return;
+        const particleCount = 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            const size = Math.random() * 3 + 1;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            
+            particle.style.animationDelay = `${Math.random() * 15}s`;
+            particle.style.animationDuration = `${Math.random() * 15 + 10}s`;
+            
+            container.appendChild(particle);
+        }
+    }
+
+    // Função para verificar e obter o token de autenticação
+    function getAuthToken() {
+        // Primeiro tenta pegar do parâmetro da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenFromUrl = urlParams.get('token');
+        
+        if (tokenFromUrl) {
+            localStorage.setItem('authToken', tokenFromUrl);
+            return tokenFromUrl;
+        }
+        
+        // Se não tiver na URL, tenta pegar do localStorage
+        const tokenFromStorage = localStorage.getItem('authToken');
+        
+        if (!tokenFromStorage) {
+            // Se não tiver token, redireciona para login
+            window.location.href = '/login.html';
+            return null;
+        }
+        
+        return tokenFromStorage;
+    }
+
+    // Função para fazer requisições à API com autenticação
+    async function fetchAPI(endpoint, method = 'GET', body = null) {
+        const authToken = getAuthToken();
+        if (!authToken) {
+            window.location.href = '/login.html';
+            return;
+        }
+        
+        const url = endpoint.startsWith('auth/') 
+            ? `${API_CONFIG.AUTH_URL}/${endpoint.replace('auth/', '')}`
+            : `${API_CONFIG.BASE_URL}/${endpoint}`;
+        
+        const options = {
+            method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            }
+        };
+        
+        if (body) {
+            options.body = JSON.stringify(body);
+        }
+        
+        try {
+            const response = await fetch(url, options);
+            
+            if (!response.ok) {
+                // Se for erro 401 (não autorizado), redireciona para login
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Erro na requisição: ${response.statusText}`);
             }
             
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `Erro na requisição: ${response.statusText}`);
+            return await response.json();
+        } catch (error) {
+            console.error('Erro na requisição:', error);
+            showAlert(`Erro na requisição: ${error.message}`, 'error');
+            throw error;
         }
-        
-        return await response.json();
-    } catch (error) {
-        console.error('Erro na requisição:', error);
-        showAlert(`Erro na requisição: ${error.message}`, 'error');
-        throw error;
     }
-}
 
-// Carrega dados do usuário
-async function loadUserData() {
-    try {
-        const data = await fetchAPI('auth/user');
-        
-        if (data.success) {
-            console.log('Usuário autenticado:', data.user);
-            return data.user;
-        } else {
-            throw new Error(data.message || 'Erro ao carregar dados do usuário');
+    // Carrega dados do usuário
+    async function loadUserData() {
+        try {
+            const data = await fetchAPI('auth/user');
+            
+            if (data.success) {
+                console.log('Usuário autenticado:', data.user);
+                return data.user;
+            } else {
+                throw new Error(data.message || 'Erro ao carregar dados do usuário');
+            }
+        } catch (error) {
+            console.error('Erro ao carregar dados do usuário:', error);
+            window.location.href = '/login.html';
         }
-    } catch (error) {
-        console.error('Erro ao carregar dados do usuário:', error);
-        window.location.href = '/login.html';
     }
-}
 
-// Mostra alerta na interface
-function showAlert(message, type = 'info') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type}`;
-    alertDiv.textContent = message;
-    
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 5000);
-}
+    // Mostra alerta na interface
+    function showAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.textContent = message;
+        
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
 
-// Configura as abas do sistema
-function setupTabs() {
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            
-            const panes = document.querySelectorAll('.tab-pane');
-            panes.forEach(pane => pane.classList.remove('active'));
-            
-            const tabId = tab.getAttribute('data-tab');
-            const tabPane = document.getElementById(`${tabId}-tab`);
-            if (tabPane) tabPane.classList.add('active');
+    // Configura as abas do sistema
+    function setupTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const panes = document.querySelectorAll('.tab-pane');
+                panes.forEach(pane => pane.classList.remove('active'));
+                
+                const tabId = tab.getAttribute('data-tab');
+                const tabPane = document.getElementById(`${tabId}-tab`);
+                if (tabPane) tabPane.classList.add('active');
+            });
         });
-    });
-}
+    }
 
-// Atualiza o select de fornecedores
-function updateSuppliersSelect() {
-    const select = document.getElementById('supplier');
-    if (!select) return;
-    
-    select.innerHTML = '<option value="">Selecione um fornecedor</option>';
-    
-    appState.suppliers.forEach(supplier => {
-        const option = document.createElement('option');
-        option.value = supplier._id;
-        option.textContent = `${supplier.name} (${supplier.code})`;
-        select.appendChild(option);
-    });
-}
+    // Atualiza o select de fornecedores
+    function updateSuppliersSelect() {
+        const select = document.getElementById('supplier');
+        if (!select) return;
+        
+        select.innerHTML = '<option value="">Selecione um fornecedor</option>';
+        
+        appState.suppliers.forEach(supplier => {
+            const option = document.createElement('option');
+            option.value = supplier._id;
+            option.textContent = `${supplier.name} (${supplier.code})`;
+            select.appendChild(option);
+        });
+    }
 
-// Atualiza o select de seções
-function updateSectionsSelect() {
-    const select = document.getElementById('warehouse-section');
-    if (!select) return;
-    
-    select.innerHTML = '<option value="">Selecione uma seção</option>';
-    
-    appState.sections.forEach(section => {
-        const option = document.createElement('option');
-        option.value = section._id;
-        option.textContent = `${section.name} (${section.code})`;
-        select.appendChild(option);
-    });
-}
+    // Atualiza o select de seções
+    function updateSectionsSelect() {
+        const select = document.getElementById('warehouse-section');
+        if (!select) return;
+        
+        select.innerHTML = '<option value="">Selecione uma seção</option>';
+        
+        appState.sections.forEach(section => {
+            const option = document.createElement('option');
+            option.value = section._id;
+            option.textContent = `${section.name} (${section.code})`;
+            select.appendChild(option);
+        });
+    }
 
-// Atualiza o select de transportadoras
-function updateCarriersSelect() {
-    const select = document.getElementById('carrier');
-    if (!select) return;
-    
-    select.innerHTML = '<option value="">Selecione a transportadora</option>';
-    
-    appState.carriers.forEach(carrier => {
-        const option = document.createElement('option');
-        option.value = carrier._id;
-        option.textContent = `${carrier.name} (${carrier.code})`;
-        select.appendChild(option);
-    });
-}
+    // Atualiza o select de transportadoras
+    function updateCarriersSelect() {
+        const select = document.getElementById('carrier');
+        if (!select) return;
+        
+        select.innerHTML = '<option value="">Selecione a transportadora</option>';
+        
+        appState.carriers.forEach(carrier => {
+            const option = document.createElement('option');
+            option.value = carrier._id;
+            option.textContent = `${carrier.name} (${carrier.code})`;
+            select.appendChild(option);
+        });
+    }
 
-// Abre um modal específico
-function openModal(modalId) {
-    const modal = document.getElementById(`${modalId}-modal`);
-    if (modal) modal.style.display = 'flex';
-}
+    // Abre um modal específico
+    function openModal(modalId) {
+        const modal = document.getElementById(`${modalId}-modal`);
+        if (modal) modal.style.display = 'flex';
+    }
 
-// Fecha todos os modais
-function closeModal() {
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.style.display = 'none';
-    });
-}
+    // Fecha todos os modais
+    function closeModal() {
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.style.display = 'none';
+        });
+    }
 
-// Renderiza o mapa do armazém
-async function renderWarehouseMap(sectionId) {
+    // Renderiza o mapa do armazém
+    async function renderWarehouseMap(sectionId) {
     try {
         const section = appState.sections.find(s => s._id == sectionId);
         const aisles = appState.aisles.filter(a => a.sectionId == sectionId);
@@ -1149,11 +1166,7 @@ async function renderWarehouseMap(sectionId) {
         
         if (!warehouseMap) return;
         
-        let html = `
-            <h4>${section.name} - ${section.code}</h4>
-            <p>${section.description}</p>
-            <div class="aisles-container">
-        `;
+        let html = '';
         
         if (aisles.length === 0) {
             html += `
@@ -1163,11 +1176,22 @@ async function renderWarehouseMap(sectionId) {
                 </div>
             `;
         } else {
+            html += `
+                <div style="margin-bottom: 1.5rem;">
+                    <h4>${section.name} - ${section.code}</h4>
+                    <p style="color: rgba(212, 175, 55, 0.7);">${section.description || 'Sem descrição'}</p>
+                </div>
+                <div class="aisles-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+            `;
+            
             for (const aisle of aisles) {
                 html += `
-                    <div class="aisle" data-aisle-id="${aisle._id}">
-                        <h5>${aisle.name} (${aisle.code})</h5>
-                        <div class="shelves">
+                    <div class="aisle" data-aisle-id="${aisle._id}" style="background: rgba(30, 30, 30, 0.8); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 8px; padding: 1.2rem; cursor: pointer; transition: all 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h5 style="margin: 0; color: var(--gold-primary);">${aisle.name}</h5>
+                            <span style="font-size: 0.8rem; color: rgba(212, 175, 55, 0.7);">${aisle.code}</span>
+                        </div>
+                        <div class="shelves" style="margin-top: 1rem;">
                 `;
                 
                 // Cria as prateleiras
@@ -1176,12 +1200,33 @@ async function renderWarehouseMap(sectionId) {
                     
                     // Busca itens nesta prateleira
                     const itemsResponse = await fetchAPI(`inventory?aisleId=${aisle._id}&shelf=${shelfCode}`);
-                    const items = itemsResponse.data;
+                    const items = itemsResponse.data || [];
+                    
+                    // Busca os nomes dos produtos
+                    let productsInfo = [];
+                    let totalItems = 0;
+                    
+                    for (const item of items) {
+                        const productResponse = await fetchAPI(`products/${item.productId}`);
+                        const product = productResponse.data || { name: 'Produto desconhecido', code: 'N/A' };
+                        productsInfo.push(`${product.name} (${item.quantity})`);
+                        totalItems += item.quantity;
+                    }
+                    
+                    // Limita a exibição a 3 produtos com "..." se houver mais
+                    const displayedProducts = productsInfo.slice(0, 3);
+                    const hasMore = productsInfo.length > 3;
                     
                     html += `
-                        <div class="shelf" data-shelf="${shelfCode}">
-                            <span>Prateleira ${shelfCode}</span>
-                            <span>${items.length > 0 ? `${items.reduce((sum, item) => sum + item.quantity, 0)} itens` : 'Vazio'}</span>
+                        <div class="shelf" data-shelf="${shelfCode}" style="background: rgba(212, 175, 55, 0.1); border-radius: 6px; padding: 0.8rem; margin-top: 0.8rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <span style="font-weight: 500;">Prateleira ${shelfCode}</span>
+                                <span style="font-size: 0.85rem; color: var(--gold-primary);">${totalItems} ${totalItems === 1 ? 'item' : 'itens'}</span>
+                            </div>
+                            <div class="shelf-items" style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.8); line-height: 1.4;" title="${productsInfo.join('\n')}">
+                                ${displayedProducts.join('\n')}
+                                ${hasMore ? '\n...' : ''}
+                            </div>
                         </div>
                     `;
                 }
@@ -1191,13 +1236,27 @@ async function renderWarehouseMap(sectionId) {
                     </div>
                 `;
             }
+            
+            html += `</div>`;
         }
         
-        html += `</div>`;
         warehouseMap.innerHTML = html;
         
-        // Adiciona eventos aos corredores e prateleiras
+        // Adiciona hover effect aos corredores
         document.querySelectorAll('.aisle').forEach(aisle => {
+            aisle.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = '0 5px 15px rgba(212, 175, 55, 0.2)';
+                this.style.borderColor = 'var(--gold-primary)';
+            });
+            
+            aisle.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+                this.style.boxShadow = '';
+                this.style.borderColor = 'rgba(212, 175, 55, 0.3)';
+            });
+            
+            // Click handler para mostrar detalhes
             aisle.addEventListener('click', function() {
                 const aisleId = this.getAttribute('data-aisle-id');
                 const aisleData = appState.aisles.find(a => a._id == aisleId);
@@ -1205,7 +1264,17 @@ async function renderWarehouseMap(sectionId) {
             });
         });
         
+        // Adiciona eventos às prateleiras
         document.querySelectorAll('.shelf').forEach(shelf => {
+            shelf.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = 'rgba(212, 175, 55, 0.2)';
+            });
+            
+            shelf.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = 'rgba(212, 175, 55, 0.1)';
+            });
+            
+            // Click handler para prateleiras
             shelf.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const aisleId = this.closest('.aisle').getAttribute('data-aisle-id');
@@ -1218,955 +1287,957 @@ async function renderWarehouseMap(sectionId) {
                 });
             });
         });
+        
     } catch (error) {
         console.error('Erro ao renderizar mapa do armazém:', error);
         showAlert('Erro ao carregar mapa do armazém: ' + error.message, 'error');
     }
 }
-
-// Mostra os detalhes de um local
-async function showLocationDetails(location) {
-    try {
-        const detailsDiv = document.getElementById('location-details');
-        const infoDiv = document.getElementById('location-info');
-        
-        if (!detailsDiv || !infoDiv) return;
-        
-        appState.currentAisle = location;
-        appState.currentShelf = location.shelf || null;
-        
-        if (location.shelf) {
-            // É uma prateleira - busca itens
-            const itemsResponse = await fetchAPI(`inventory?aisleId=${location._id}&shelf=${location.shelf}`);
-            const items = itemsResponse.data;
+    // Mostra os detalhes de um local
+    async function showLocationDetails(location) {
+        try {
+            const detailsDiv = document.getElementById('location-details');
+            const infoDiv = document.getElementById('location-info');
             
-            infoDiv.innerHTML = `
-                <h5>${location.name} - Prateleira ${location.shelf}</h5>
-                <p><strong>Código:</strong> ${location.code}-${location.shelf}</p>
-                <p><strong>Total de itens:</strong> ${items.reduce((sum, item) => sum + item.quantity, 0)}</p>
-            `;
+            if (!detailsDiv || !infoDiv) return;
             
-            // Atualiza a lista de itens
-            const itemsList = document.getElementById('location-items-list');
-            if (itemsList) {
-                itemsList.innerHTML = '';
+            appState.currentAisle = location;
+            appState.currentShelf = location.shelf || null;
+            
+            if (location.shelf) {
+                // É uma prateleira - busca itens
+                const itemsResponse = await fetchAPI(`inventory?aisleId=${location._id}&shelf=${location.shelf}`);
+                const items = itemsResponse.data || [];
                 
-                for (const item of items) {
-                    // Busca detalhes do produto
-                    const productResponse = await fetchAPI(`products/${item.productId}`);
-                    const product = productResponse.data || { 
-                        name: 'Produto não encontrado', 
-                        code: 'N/A' 
-                    };
+                infoDiv.innerHTML = `
+                    <h5>${location.name} - Prateleira ${location.shelf}</h5>
+                    <p><strong>Código:</strong> ${location.code}-${location.shelf}</p>
+                    <p><strong>Total de itens:</strong> ${items.reduce((sum, item) => sum + item.quantity, 0)}</p>
+                `;
+                
+                // Atualiza a lista de itens
+                const itemsList = document.getElementById('location-items-list');
+                if (itemsList) {
+                    itemsList.innerHTML = '';
                     
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${product.name} (${product.code})</td>
-                        <td>${item.quantity}</td>
-                        <td>
-                            <button class="royal-btn royal-btn-outline btn-remove-item" data-item-id="${item._id}" style="padding: 0.3rem 0.5rem;">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    `;
-                    itemsList.appendChild(row);
-                    
-                    // Adiciona evento ao botão de remover
-                    row.querySelector('.btn-remove-item')?.addEventListener('click', function() {
-                        const itemId = this.getAttribute('data-item-id');
-                        removeItemFromLocation(itemId);
-                    });
+                    for (const item of items) {
+                        // Busca detalhes do produto
+                        const productResponse = await fetchAPI(`products/${item.productId}`);
+                        const product = productResponse.data || { 
+                            name: 'Produto não encontrado', 
+                            code: 'N/A' 
+                        };
+                        
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${product.name} (${product.code})</td>
+                            <td>${item.quantity}</td>
+                            <td>
+                                <button class="royal-btn royal-btn-outline btn-remove-item" data-item-id="${item._id}" style="padding: 0.3rem 0.5rem;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        itemsList.appendChild(row);
+                        
+                        // Adiciona evento ao botão de remover
+                        row.querySelector('.btn-remove-item')?.addEventListener('click', function() {
+                            const itemId = this.getAttribute('data-item-id');
+                            removeItemFromLocation(itemId);
+                        });
+                    }
                 }
+                
+                const locationItems = document.getElementById('location-items');
+                if (locationItems) locationItems.style.display = 'block';
+            } else {
+                // É um corredor - busca itens
+                const itemsResponse = await fetchAPI(`inventory?aisleId=${location._id}`);
+                const items = itemsResponse.data || [];
+                
+                infoDiv.innerHTML = `
+                    <h5>${location.name}</h5>
+                    <p><strong>Código:</strong> ${location.code}</p>
+                    <p><strong>Prateleiras:</strong> ${location.shelves}</p>
+                    <p><strong>Total de itens:</strong> ${items.reduce((sum, item) => sum + item.quantity, 0)}</p>
+                `;
+                
+                const locationItems = document.getElementById('location-items');
+                if (locationItems) locationItems.style.display = 'none';
             }
             
-            const locationItems = document.getElementById('location-items');
-            if (locationItems) locationItems.style.display = 'block';
-        } else {
-            // É um corredor - busca itens
-            const itemsResponse = await fetchAPI(`inventory?aisleId=${location._id}`);
-            const items = itemsResponse.data;
-            
-            infoDiv.innerHTML = `
-                <h5>${location.name}</h5>
-                <p><strong>Código:</strong> ${location.code}</p>
-                <p><strong>Prateleiras:</strong> ${location.shelves}</p>
-                <p><strong>Total de itens:</strong> ${items.reduce((sum, item) => sum + item.quantity, 0)}</p>
-            `;
-            
-            const locationItems = document.getElementById('location-items');
-            if (locationItems) locationItems.style.display = 'none';
+            detailsDiv.style.display = 'block';
+            document.getElementById('add-item-form').style.display = 'block';
+        } catch (error) {
+            console.error('Erro ao mostrar detalhes do local:', error);
+            showAlert('Erro ao carregar detalhes do local: ' + error.message, 'error');
         }
-        
-        detailsDiv.style.display = 'block';
-    } catch (error) {
-        console.error('Erro ao mostrar detalhes do local:', error);
-        showAlert('Erro ao carregar detalhes do local: ' + error.message, 'error');
     }
-}
 
-// Busca produtos para adicionar ao local
-async function searchProducts() {
-    try {
-        const searchTerm = document.getElementById('item-search')?.value.toLowerCase();
-        const resultsDiv = document.getElementById('product-results');
+    // Busca produtos para adicionar ao local
+    async function searchProducts() {
+        try {
+            const searchTerm = document.getElementById('item-search')?.value.toLowerCase();
+            const resultsDiv = document.getElementById('product-results');
+            
+            if (!searchTerm || !resultsDiv) {
+                if (resultsDiv) resultsDiv.style.display = 'none';
+                return;
+            }
+            
+            const response = await fetchAPI(`products?search=${encodeURIComponent(searchTerm)}`);
+            const filteredProducts = response.data || [];
+            
+            resultsDiv.innerHTML = '';
+            
+            if (filteredProducts.length === 0) {
+                resultsDiv.innerHTML = '<div class="empty-state">Nenhum produto encontrado</div>';
+            } else {
+                filteredProducts.forEach(product => {
+                    const item = document.createElement('div');
+                    item.className = 'product-result-item';
+                    item.innerHTML = `
+                        <strong>${product.name}</strong> (${product.code})
+                        <div style="font-size: 0.8rem; color: rgba(212, 175, 55, 0.7);">${product.description || 'Sem descrição'}</div>
+                    `;
+                    item.addEventListener('click', () => {
+                        const itemSearch = document.getElementById('item-search');
+                        if (itemSearch) itemSearch.value = `${product.name} (${product.code})`;
+                        appState.selectedProduct = product;
+                        resultsDiv.style.display = 'none';
+                    });
+                    resultsDiv.appendChild(item);
+                });
+            }
+            
+            resultsDiv.style.display = 'block';
+        } catch (error) {
+            console.error('Erro na busca de produtos:', error);
+            showAlert('Erro na busca de produtos: ' + error.message, 'error');
+        }
+    }
+
+    // Adiciona um item ao local selecionado
+    async function addItemToLocation() {
+        try {
+            if (!appState.selectedProduct) {
+                throw new Error('Selecione um produto primeiro');
+            }
+            
+            const quantityInput = document.getElementById('item-quantity');
+            if (!quantityInput) return;
+            
+            const quantity = parseInt(quantityInput.value);
+            
+            if (!quantity || quantity <= 0) {
+                throw new Error('Informe uma quantidade válida');
+            }
+            
+            const itemData = {
+                productId: appState.selectedProduct._id,
+                aisleId: appState.currentAisle._id,
+                shelf: appState.currentShelf,
+                quantity: quantity
+            };
+            
+            // Envia para a API
+            const response = await fetchAPI('inventory', 'POST', itemData);
+            
+            // Atualiza a exibição
+            await showLocationDetails(appState.currentAisle);
+            
+            // Limpa o formulário
+            const itemSearch = document.getElementById('item-search');
+            if (itemSearch) itemSearch.value = '';
+            if (quantityInput) quantityInput.value = '';
+            
+            const productResults = document.getElementById('product-results');
+            if (productResults) productResults.style.display = 'none';
+            
+            appState.selectedProduct = null;
+            
+            showAlert('Item adicionado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao adicionar item:', error);
+            showAlert('Erro ao adicionar item: ' + error.message, 'error');
+        }
+    }
+
+    // Remove um item do local
+    async function removeItemFromLocation(itemId) {
+        try {
+            if (confirm('Tem certeza que deseja remover este item do local?')) {
+                await fetchAPI(`inventory/${itemId}`, 'DELETE');
+                await showLocationDetails(appState.currentAisle);
+                showAlert('Item removido com sucesso!', 'success');
+            }
+        } catch (error) {
+            console.error('Erro ao remover item:', error);
+            showAlert('Erro ao remover item: ' + error.message, 'error');
+        }
+    }
+
+    // Salva uma nova seção
+    async function saveSection() {
+        try {
+            const name = document.getElementById('section-name')?.value;
+            const code = document.getElementById('section-code')?.value;
+            const description = document.getElementById('section-description')?.value;
+            
+            if (!name || !code) {
+                throw new Error('Nome e código são obrigatórios');
+            }
+            
+            const sectionData = {
+                name,
+                code,
+                description
+            };
+            
+            const response = await fetchAPI('sections', 'POST', sectionData);
+            appState.sections.push(response.data);
+            
+            updateSectionsSelect();
+            closeModal();
+            
+            // Seleciona automaticamente a nova seção
+            const warehouseSection = document.getElementById('warehouse-section');
+            if (warehouseSection) {
+                warehouseSection.value = response.data._id;
+                warehouseSection.dispatchEvent(new Event('change'));
+            }
+            
+            showAlert('Seção criada com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao criar seção:', error);
+            showAlert('Erro ao criar seção: ' + error.message, 'error');
+        }
+    }
+
+    // Salva um novo corredor
+    async function saveAisle() {
+        try {
+            const sectionId = document.getElementById('aisle-section')?.value;
+            const name = document.getElementById('aisle-name')?.value;
+            const shelves = parseInt(document.getElementById('aisle-shelves')?.value);
+            
+            if (!sectionId || !name || !shelves) {
+                throw new Error('Preencha todos os campos corretamente');
+            }
+            
+            const aisleData = {
+                sectionId,
+                name,
+                code: `${name.toUpperCase().substring(0, 3)}-${Math.floor(Math.random() * 1000)}`,
+                shelves
+            };
+            
+            const response = await fetchAPI('aisles', 'POST', aisleData);
+            appState.aisles.push(response.data);
+            
+            // Atualiza o mapa do armazém
+            await renderWarehouseMap(sectionId);
+            closeModal();
+            
+            showAlert('Corredor criado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao criar corredor:', error);
+            showAlert('Erro ao criar corredor: ' + error.message, 'error');
+        }
+    }
+
+    // Carrega todos os produtos para a aba de produtos
+    async function loadAllProducts() {
+        try {
+            const response = await fetchAPI('products?limit=1000');
+            appState.allProducts = response.data || [];
+            renderProductsTable(appState.allProducts);
+        } catch (error) {
+            console.error('Erro ao carregar produtos:', error);
+            showAlert('Erro ao carregar produtos: ' + error.message, 'error');
+        }
+    }
+
+    // Renderiza a tabela de produtos
+    async function renderProductsTable(products) {
+        const tbody = document.getElementById('products-list');
+        if (!tbody) return;
         
-        if (!searchTerm || !resultsDiv) {
-            if (resultsDiv) resultsDiv.style.display = 'none';
+        tbody.innerHTML = '';
+        
+        if (products.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <p>Nenhum produto encontrado</p>
+                    </td>
+                </tr>
+            `;
             return;
         }
         
-        const response = await fetchAPI(`products?search=${encodeURIComponent(searchTerm)}`);
-        const filteredProducts = response.data;
-        
-        resultsDiv.innerHTML = '';
-        
-        if (filteredProducts.length === 0) {
-            resultsDiv.innerHTML = '<div class="empty-state">Nenhum produto encontrado</div>';
-        } else {
-            filteredProducts.forEach(product => {
-                const item = document.createElement('div');
-                item.className = 'product-result-item';
-                item.innerHTML = `
-                    <strong>${product.name}</strong> (${product.code})
-                    <div style="font-size: 0.8rem; color: rgba(212, 175, 55, 0.7);">${product.description}</div>
-                `;
-                item.addEventListener('click', () => {
-                    const itemSearch = document.getElementById('item-search');
-                    if (itemSearch) itemSearch.value = `${product.name} (${product.code})`;
-                    appState.selectedProduct = product;
-                    resultsDiv.style.display = 'none';
-                });
-                resultsDiv.appendChild(item);
+        for (const product of products) {
+            // Busca o estoque total do produto
+            let totalStock = 0;
+            try {
+                const inventoryResponse = await fetchAPI(`inventory?productId=${product._id}`);
+                totalStock = inventoryResponse.data.reduce((sum, item) => sum + item.quantity, 0);
+            } catch (error) {
+                console.error('Erro ao buscar estoque:', error);
+            }
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${product.code}</td>
+                <td>${product.name}</td>
+                <td>${product.description || '-'}</td>
+                <td>${product.barcode || '-'}</td>
+                <td>${totalStock}</td>
+                <td>
+                    <button class="royal-btn royal-btn-outline btn-edit-product" data-product-id="${product._id}" style="padding: 0.3rem 0.5rem;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="royal-btn royal-btn-outline btn-delete-product" data-product-id="${product._id}" style="padding: 0.3rem 0.5rem;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+            
+            // Adiciona eventos aos botões
+            row.querySelector('.btn-edit-product')?.addEventListener('click', () => {
+                editProduct(product._id);
+            });
+            
+            row.querySelector('.btn-delete-product')?.addEventListener('click', () => {
+                deleteProduct(product._id);
             });
         }
-        
-        resultsDiv.style.display = 'block';
-    } catch (error) {
-        console.error('Erro na busca de produtos:', error);
-        showAlert('Erro na busca de produtos: ' + error.message, 'error');
     }
-}
 
-// Adiciona um item ao local selecionado
-async function addItemToLocation() {
-    try {
-        if (!appState.selectedProduct) {
-            throw new Error('Selecione um produto primeiro');
-        }
-        
-        const quantityInput = document.getElementById('item-quantity');
-        if (!quantityInput) return;
-        
-        const quantity = parseInt(quantityInput.value);
-        
-        if (!quantity || quantity <= 0) {
-            throw new Error('Informe uma quantidade válida');
-        }
-        
-        const itemData = {
-            productId: appState.selectedProduct._id,
-            aisleId: appState.currentAisle._id,
-            shelf: appState.currentShelf,
-            quantity: quantity
-        };
-        
-        // Envia para a API
-        const response = await fetchAPI('inventory', 'POST', itemData);
-        
-        // Atualiza a exibição
-        await showLocationDetails(appState.currentAisle);
-        
-        // Limpa o formulário
-        const itemSearch = document.getElementById('item-search');
-        if (itemSearch) itemSearch.value = '';
-        if (quantityInput) quantityInput.value = '';
-        
-        const productResults = document.getElementById('product-results');
-        if (productResults) productResults.style.display = 'none';
-        
-        appState.selectedProduct = null;
-        
-        showAlert('Item adicionado com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro ao adicionar item:', error);
-        showAlert('Erro ao adicionar item: ' + error.message, 'error');
-    }
-}
-
-// Remove um item do local
-async function removeItemFromLocation(itemId) {
-    try {
-        if (confirm('Tem certeza que deseja remover este item do local?')) {
-            await fetchAPI(`inventory/${itemId}`, 'DELETE');
-            await showLocationDetails(appState.currentAisle);
-            showAlert('Item removido com sucesso!', 'success');
-        }
-    } catch (error) {
-        console.error('Erro ao remover item:', error);
-        showAlert('Erro ao remover item: ' + error.message, 'error');
-    }
-}
-
-// Salva uma nova seção
-async function saveSection() {
-    try {
-        const name = document.getElementById('section-name')?.value;
-        const code = document.getElementById('section-code')?.value;
-        const description = document.getElementById('section-description')?.value;
-        
-        if (!name || !code) {
-            throw new Error('Nome e código são obrigatórios');
-        }
-        
-        const sectionData = {
-            name,
-            code,
-            description
-        };
-        
-        const response = await fetchAPI('sections', 'POST', sectionData);
-        appState.sections.push(response.data);
-        
-        updateSectionsSelect();
-        closeModal();
-        
-        // Seleciona automaticamente a nova seção
-        const warehouseSection = document.getElementById('warehouse-section');
-        if (warehouseSection) {
-            warehouseSection.value = response.data._id;
-            warehouseSection.dispatchEvent(new Event('change'));
-        }
-        
-        showAlert('Seção criada com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro ao criar seção:', error);
-        showAlert('Erro ao criar seção: ' + error.message, 'error');
-    }
-}
-
-// Salva um novo corredor
-async function saveAisle() {
-    try {
-        const sectionId = document.getElementById('aisle-section')?.value;
-        const name = document.getElementById('aisle-name')?.value;
-        const shelves = parseInt(document.getElementById('aisle-shelves')?.value);
-        
-        if (!sectionId || !name || !shelves) {
-            throw new Error('Preencha todos os campos corretamente');
-        }
-        
-        const aisleData = {
-            sectionId,
-            name,
-            shelves
-        };
-        
-        const response = await fetchAPI('aisles', 'POST', aisleData);
-        appState.aisles.push(response.data);
-        
-        // Atualiza o mapa do armazém
-        await renderWarehouseMap(sectionId);
-        closeModal();
-        
-        showAlert('Corredor criado com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro ao criar corredor:', error);
-        showAlert('Erro ao criar corredor: ' + error.message, 'error');
-    }
-}
-
-// Carrega todos os produtos para a aba de produtos
-async function loadAllProducts() {
-    try {
-        const response = await fetchAPI('products?limit=1000');
-        appState.allProducts = response.data;
-        renderProductsTable(appState.allProducts);
-    } catch (error) {
-        console.error('Erro ao carregar produtos:', error);
-        showAlert('Erro ao carregar produtos: ' + error.message, 'error');
-    }
-}
-
-// Renderiza a tabela de produtos
-async function renderProductsTable(products) {
-    const tbody = document.getElementById('products-list');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-    
-    if (products.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="empty-state">
-                    <i class="fas fa-box-open"></i>
-                    <p>Nenhum produto encontrado</p>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-    
-    for (const product of products) {
-        // Busca o estoque total do produto
-        let totalStock = 0;
+    // Edita um produto
+    async function editProduct(productId) {
         try {
-            const inventoryResponse = await fetchAPI(`inventory?productId=${product._id}`);
-            totalStock = inventoryResponse.data.reduce((sum, item) => sum + item.quantity, 0);
+            const product = appState.allProducts.find(p => p._id === productId);
+            if (!product) {
+                throw new Error('Produto não encontrado');
+            }
+            
+            // Preenche o modal com os dados do produto
+            document.getElementById('product-code').value = product.code;
+            document.getElementById('product-name').value = product.name;
+            document.getElementById('product-description').value = product.description || '';
+            document.getElementById('product-barcode').value = product.barcode || '';
+            
+            // Altera o botão de salvar para atualizar
+            const saveBtn = document.getElementById('save-product');
+            if (saveBtn) {
+                saveBtn.textContent = 'Atualizar Produto';
+                saveBtn.setAttribute('data-product-id', productId);
+            }
+            
+            openModal('new-product');
         } catch (error) {
-            console.error('Erro ao buscar estoque:', error);
+            console.error('Erro ao editar produto:', error);
+            showAlert('Erro ao editar produto: ' + error.message, 'error');
+        }
+    }
+
+    // Deleta um produto
+    async function deleteProduct(productId) {
+        try {
+            if (!confirm('Tem certeza que deseja excluir este produto?')) {
+                return;
+            }
+            
+            await fetchAPI(`products/${productId}`, 'DELETE');
+            showAlert('Produto excluído com sucesso!', 'success');
+            
+            // Atualiza a lista de produtos
+            await loadAllProducts();
+        } catch (error) {
+            console.error('Erro ao excluir produto:', error);
+            showAlert('Erro ao excluir produto: ' + error.message, 'error');
+        }
+    }
+
+    // Busca produtos na tabela
+    function searchProductsTable() {
+        const searchTerm = document.getElementById('products-search')?.value.toLowerCase();
+        if (!searchTerm) return;
+        
+        const filteredProducts = appState.allProducts.filter(product => 
+            product.code.toLowerCase().includes(searchTerm) ||
+            product.name.toLowerCase().includes(searchTerm) ||
+            (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+            (product.barcode && product.barcode.toLowerCase().includes(searchTerm))
+        );
+        
+        renderProductsTable(filteredProducts);
+    }
+
+    // Exporta produtos para CSV
+    function exportProductsToCSV() {
+        const headers = ['Código', 'Nome', 'Descrição', 'Código de Barras'];
+        const rows = appState.allProducts.map(product => [
+            product.code,
+            product.name,
+            product.description || '',
+            product.barcode || ''
+        ]);
+        
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += headers.join(",") + "\n";
+        rows.forEach(row => {
+            csvContent += row.map(field => `"${field}"`).join(",") + "\n";
+        });
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "produtos.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Salva um produto (cria ou atualiza)
+    async function saveProduct() {
+        try {
+            const codeInput = document.getElementById('product-code');
+            const nameInput = document.getElementById('product-name');
+            const descriptionInput = document.getElementById('product-description');
+            const barcodeInput = document.getElementById('product-barcode');
+            
+            const code = codeInput?.value.trim();
+            const name = nameInput?.value.trim();
+            const description = descriptionInput?.value.trim();
+            const barcode = barcodeInput?.value.trim();
+            
+            // Validação básica
+            if (!code) {
+                codeInput?.focus();
+                throw new Error('O código do produto é obrigatório');
+            }
+            
+            if (!name) {
+                nameInput?.focus();
+                throw new Error('O nome do produto é obrigatório');
+            }
+            
+            // Verifica se é atualização
+            const saveBtn = document.getElementById('save-product');
+            const isUpdate = saveBtn?.hasAttribute('data-product-id');
+            
+            const productData = {
+                code,
+                name,
+                description,
+                barcode: barcode || `INTERNO-${code}`
+            };
+            
+            let response;
+            
+            if (isUpdate) {
+                const productId = saveBtn.getAttribute('data-product-id');
+                response = await fetchAPI(`products/${productId}`, 'PUT', productData);
+                
+                // Atualiza na lista de produtos
+                const index = appState.allProducts.findIndex(p => p._id === productId);
+                if (index >= 0) {
+                    appState.allProducts[index] = response.data;
+                }
+            } else {
+                response = await fetchAPI('products', 'POST', productData);
+                appState.allProducts.push(response.data);
+            }
+            
+            // Atualiza a tabela
+            renderProductsTable(appState.allProducts);
+            closeModal();
+            showAlert(`Produto ${isUpdate ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
+        } catch (error) {
+            console.error('Erro ao salvar produto:', error);
+            showAlert(error.message, 'error');
+        }
+    }
+
+    // Gera um código de barras aleatório
+    function generateBarcode() {
+        const randomBarcode = Math.floor(1000000000000 + Math.random() * 9000000000000);
+        const barcodeInput = document.getElementById('product-barcode');
+        if (barcodeInput) barcodeInput.value = randomBarcode.toString();
+    }
+
+    // Simula o escaneamento de código de barras
+    async function scanBarcode() {
+        try {
+            const barcode = prompt("Digite ou escaneie o código de barras:");
+            if (barcode) {
+                // Verifica se é um produto existente
+                const productsResponse = await fetchAPI(`products?search=${barcode}`);
+                const product = productsResponse.data.find(p => p.barcode === barcode);
+                
+                if (product) {
+                    addProductToReceiving(product);
+                } else {
+                    // Se não existir, pergunta se deseja cadastrar
+                    if (confirm('Produto não encontrado. Deseja cadastrar um novo produto?')) {
+                        openModal('new-product');
+                        const barcodeInput = document.getElementById('product-barcode');
+                        if (barcodeInput) barcodeInput.value = barcode;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao escanear código de barras:', error);
+            showAlert('Erro ao escanear código de barras: ' + error.message, 'error');
+        }
+    }
+
+    // Adiciona um produto à lista de recebimento
+    function addProductToReceiving(product) {
+        const tbody = document.getElementById('receiving-items');
+        if (!tbody) return;
+        
+        // Verifica se o produto já foi adicionado
+        if (appState.currentReceivingItems.some(item => item.productId === product._id)) {
+            showAlert('Este produto já foi adicionado ao recebimento', 'warning');
+            return;
         }
         
         const row = document.createElement('tr');
+        row.setAttribute('data-product-id', product._id);
         row.innerHTML = `
-            <td>${product.code}</td>
-            <td>${product.name}</td>
-            <td>${product.description || '-'}</td>
-            <td>${product.barcode || '-'}</td>
-            <td>${totalStock}</td>
+            <td>${product.name} (${product.code})</td>
+            <td><input type="number" class="royal-input expected-qty" value="1" min="1" style="width: 80px;"></td>
+            <td><input type="number" class="royal-input received-qty" value="0" min="0" style="width: 80px;"></td>
+            <td class="difference">0</td>
+            <td><span class="status-badge status-warning">Pendente</span></td>
             <td>
-                <button class="royal-btn royal-btn-outline btn-edit-product" data-product-id="${product._id}" style="padding: 0.3rem 0.5rem;">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="royal-btn royal-btn-outline btn-delete-product" data-product-id="${product._id}" style="padding: 0.3rem 0.5rem;">
+                <button class="royal-btn royal-btn-outline btn-remove-receiving-item" style="padding: 0.3rem 0.5rem;">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
         `;
+        
         tbody.appendChild(row);
         
-        // Adiciona eventos aos botões
-        row.querySelector('.btn-edit-product')?.addEventListener('click', () => {
-            editProduct(product._id);
+        // Adiciona ao estado
+        appState.currentReceivingItems.push({
+            productId: product._id,
+            expectedQty: 1,
+            receivedQty: 0,
+            status: 'pending'
         });
         
-        row.querySelector('.btn-delete-product')?.addEventListener('click', () => {
-            deleteProduct(product._id);
+        // Adiciona eventos aos inputs
+        row.querySelector('.expected-qty')?.addEventListener('change', updateReceivingItem);
+        row.querySelector('.received-qty')?.addEventListener('change', updateReceivingItem);
+        
+        // Adiciona evento ao botão de remover
+        row.querySelector('.btn-remove-receiving-item')?.addEventListener('click', function() {
+            const productId = row.getAttribute('data-product-id');
+            appState.currentReceivingItems = appState.currentReceivingItems.filter(item => item.productId !== productId);
+            row.remove();
         });
     }
-}
 
-// Edita um produto
-async function editProduct(productId) {
-    try {
-        const product = appState.allProducts.find(p => p._id === productId);
-        if (!product) {
-            throw new Error('Produto não encontrado');
+    // Atualiza um item do recebimento
+    function updateReceivingItem(e) {
+        const row = e.target.closest('tr');
+        if (!row) return;
+        
+        const productId = row.getAttribute('data-product-id');
+        const expectedQty = parseInt(row.querySelector('.expected-qty')?.value) || 0;
+        const receivedQty = parseInt(row.querySelector('.received-qty')?.value) || 0;
+        const difference = receivedQty - expectedQty;
+        
+        // Atualiza a diferença
+        const differenceCell = row.querySelector('.difference');
+        if (differenceCell) differenceCell.textContent = difference;
+        
+        // Atualiza o status
+        const statusBadge = row.querySelector('.status-badge');
+        
+        let status = 'pending';
+        let statusClass = 'status-warning';
+        let statusText = 'Pendente';
+        
+        if (receivedQty === 0) {
+            status = 'pending';
+            statusClass = 'status-warning';
+            statusText = 'Pendente';
+        } else if (difference === 0) {
+            status = 'received';
+            statusClass = 'status-success';
+            statusText = 'Recebido';
+        } else if (difference > 0) {
+            status = 'excess';
+            statusClass = 'status-danger';
+            statusText = 'Excesso';
+        } else {
+            status = 'missing';
+            statusClass = 'status-danger';
+            statusText = 'Falta';
         }
         
-        // Preenche o modal com os dados do produto
-        document.getElementById('product-code').value = product.code;
-        document.getElementById('product-name').value = product.name;
-        document.getElementById('product-description').value = product.description || '';
-        document.getElementById('product-barcode').value = product.barcode || '';
-        
-        // Altera o botão de salvar para atualizar
-        const saveBtn = document.getElementById('save-product');
-        if (saveBtn) {
-            saveBtn.textContent = 'Atualizar Produto';
-            saveBtn.setAttribute('data-product-id', productId);
+        if (statusBadge) {
+            statusBadge.className = `status-badge ${statusClass}`;
+            statusBadge.textContent = statusText;
         }
         
-        openModal('new-product');
-    } catch (error) {
-        console.error('Erro ao editar produto:', error);
-        showAlert('Erro ao editar produto: ' + error.message, 'error');
+        // Atualiza no estado
+        const itemIndex = appState.currentReceivingItems.findIndex(item => item.productId === productId);
+        if (itemIndex >= 0) {
+            appState.currentReceivingItems[itemIndex] = {
+                ...appState.currentReceivingItems[itemIndex],
+                expectedQty,
+                receivedQty,
+                status
+            };
+        }
     }
-}
 
-// Deleta um produto
-async function deleteProduct(productId) {
-    try {
-        if (!confirm('Tem certeza que deseja excluir este produto?')) {
+    // Abre o modal de contestação
+    function openContestModal() {
+        // Verifica se há itens com problemas
+        const hasProblems = appState.currentReceivingItems.some(item => 
+            item.status === 'missing' || item.status === 'excess'
+        );
+        
+        if (!hasProblems) {
+            showAlert('Não há itens com divergência para contestar', 'warning');
             return;
         }
         
-        await fetchAPI(`products/${productId}`, 'DELETE');
-        showAlert('Produto excluído com sucesso!', 'success');
-        
-        // Atualiza a lista de produtos
-        await loadAllProducts();
-    } catch (error) {
-        console.error('Erro ao excluir produto:', error);
-        showAlert('Erro ao excluir produto: ' + error.message, 'error');
+        openModal('contest');
     }
-}
 
-// Busca produtos na tabela
-function searchProductsTable() {
-    const searchTerm = document.getElementById('products-search')?.value.toLowerCase();
-    if (!searchTerm) return;
-    
-    const filteredProducts = appState.allProducts.filter(product => 
-        product.code.toLowerCase().includes(searchTerm) ||
-        product.name.toLowerCase().includes(searchTerm) ||
-        (product.description && product.description.toLowerCase().includes(searchTerm)) ||
-        (product.barcode && product.barcode.toLowerCase().includes(searchTerm))
-    );
-    
-    renderProductsTable(filteredProducts);
-}
-
-// Exporta produtos para CSV
-function exportProductsToCSV() {
-    const headers = ['Código', 'Nome', 'Descrição', 'Código de Barras'];
-    const rows = appState.allProducts.map(product => [
-        product.code,
-        product.name,
-        product.description || '',
-        product.barcode || ''
-    ]);
-    
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += headers.join(",") + "\n";
-    rows.forEach(row => {
-        csvContent += row.map(field => `"${field}"`).join(",") + "\n";
-    });
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "produtos.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// Salva um produto (cria ou atualiza)
-async function saveProduct() {
-    try {
-        const codeInput = document.getElementById('product-code');
-        const nameInput = document.getElementById('product-name');
-        const descriptionInput = document.getElementById('product-description');
-        const barcodeInput = document.getElementById('product-barcode');
-        
-        const code = codeInput?.value.trim();
-        const name = nameInput?.value.trim();
-        const description = descriptionInput?.value.trim();
-        const barcode = barcodeInput?.value.trim();
-        
-        // Validação básica
-        if (!code) {
-            codeInput?.focus();
-            throw new Error('O código do produto é obrigatório');
-        }
-        
-        if (!name) {
-            nameInput?.focus();
-            throw new Error('O nome do produto é obrigatório');
-        }
-        
-        // Verifica se é atualização
-        const saveBtn = document.getElementById('save-product');
-        const isUpdate = saveBtn?.hasAttribute('data-product-id');
-        
-        const productData = {
-            code,
-            name,
-            description,
-            barcode: barcode || `INTERNO-${code}`
-        };
-        
-        let response;
-        
-        if (isUpdate) {
-            const productId = saveBtn.getAttribute('data-product-id');
-            response = await fetchAPI(`products/${productId}`, 'PUT', productData);
+    // Envia a contestação
+    async function submitContest() {
+        try {
+            const reason = document.getElementById('contest-reason')?.value;
+            const description = document.getElementById('contest-description')?.value;
             
-            // Atualiza na lista de produtos
-            const index = appState.allProducts.findIndex(p => p._id === productId);
-            if (index >= 0) {
-                appState.allProducts[index] = response.data;
+            if (!reason || !description) {
+                throw new Error('Preencha o motivo e a descrição da contestação');
             }
-        } else {
-            response = await fetchAPI('products', 'POST', productData);
-            appState.allProducts.push(response.data);
-        }
-        
-        // Atualiza a tabela
-        renderProductsTable(appState.allProducts);
-        closeModal();
-        showAlert(`Produto ${isUpdate ? 'atualizado' : 'cadastrado'} com sucesso!`, 'success');
-    } catch (error) {
-        console.error('Erro ao salvar produto:', error);
-        showAlert(error.message, 'error');
-    }
-}
-
-// Gera um código de barras aleatório
-function generateBarcode() {
-    const randomBarcode = Math.floor(1000000000000 + Math.random() * 9000000000000);
-    const barcodeInput = document.getElementById('product-barcode');
-    if (barcodeInput) barcodeInput.value = randomBarcode.toString();
-}
-
-// Simula o escaneamento de código de barras
-async function scanBarcode() {
-    try {
-        const barcode = prompt("Digite ou escaneie o código de barras:");
-        if (barcode) {
-            // Verifica se é um produto existente
-            const productsResponse = await fetchAPI(`products?search=${barcode}`);
-            const product = productsResponse.data.find(p => p.barcode === barcode);
             
-            if (product) {
-                addProductToReceiving(product);
-            } else {
-                // Se não existir, pergunta se deseja cadastrar
-                if (confirm('Produto não encontrado. Deseja cadastrar um novo produto?')) {
-                    openModal('new-product');
-                    const barcodeInput = document.getElementById('product-barcode');
-                    if (barcodeInput) barcodeInput.value = barcode;
+            // Marca os itens problemáticos como contestados
+            appState.currentReceivingItems.forEach(item => {
+                if (item.status === 'missing' || item.status === 'excess') {
+                    item.contested = true;
+                    item.contestReason = reason;
+                    item.contestDescription = description;
                 }
-            }
-        }
-    } catch (error) {
-        console.error('Erro ao escanear código de barras:', error);
-        showAlert('Erro ao escanear código de barras: ' + error.message, 'error');
-    }
-}
-
-// Adiciona um produto à lista de recebimento
-function addProductToReceiving(product) {
-    const tbody = document.getElementById('receiving-items');
-    if (!tbody) return;
-    
-    // Verifica se o produto já foi adicionado
-    if (appState.currentReceivingItems.some(item => item.productId === product._id)) {
-        showAlert('Este produto já foi adicionado ao recebimento', 'warning');
-        return;
-    }
-    
-    const row = document.createElement('tr');
-    row.setAttribute('data-product-id', product._id);
-    row.innerHTML = `
-        <td>${product.name} (${product.code})</td>
-        <td><input type="number" class="royal-input expected-qty" value="1" min="1" style="width: 80px;"></td>
-        <td><input type="number" class="royal-input received-qty" value="0" min="0" style="width: 80px;"></td>
-        <td class="difference">0</td>
-        <td><span class="status-badge status-warning">Pendente</span></td>
-        <td>
-            <button class="royal-btn royal-btn-outline btn-remove-receiving-item" style="padding: 0.3rem 0.5rem;">
-                <i class="fas fa-trash"></i>
-            </button>
-        </td>
-    `;
-    
-    tbody.appendChild(row);
-    
-    // Adiciona ao estado
-    appState.currentReceivingItems.push({
-        productId: product._id,
-        expectedQty: 1,
-        receivedQty: 0,
-        status: 'pending'
-    });
-    
-    // Adiciona eventos aos inputs
-    row.querySelector('.expected-qty')?.addEventListener('change', updateReceivingItem);
-    row.querySelector('.received-qty')?.addEventListener('change', updateReceivingItem);
-    
-    // Adiciona evento ao botão de remover
-    row.querySelector('.btn-remove-receiving-item')?.addEventListener('click', function() {
-        const productId = row.getAttribute('data-product-id');
-        appState.currentReceivingItems = appState.currentReceivingItems.filter(item => item.productId !== productId);
-        row.remove();
-    });
-}
-
-// Atualiza um item do recebimento
-function updateReceivingItem(e) {
-    const row = e.target.closest('tr');
-    if (!row) return;
-    
-    const productId = row.getAttribute('data-product-id');
-    const expectedQty = parseInt(row.querySelector('.expected-qty')?.value) || 0;
-    const receivedQty = parseInt(row.querySelector('.received-qty')?.value) || 0;
-    const difference = receivedQty - expectedQty;
-    
-    // Atualiza a diferença
-    const differenceCell = row.querySelector('.difference');
-    if (differenceCell) differenceCell.textContent = difference;
-    
-    // Atualiza o status
-    const statusBadge = row.querySelector('.status-badge');
-    
-    let status = 'pending';
-    let statusClass = 'status-warning';
-    let statusText = 'Pendente';
-    
-    if (receivedQty === 0) {
-        status = 'pending';
-        statusClass = 'status-warning';
-        statusText = 'Pendente';
-    } else if (difference === 0) {
-        status = 'received';
-        statusClass = 'status-success';
-        statusText = 'Recebido';
-    } else if (difference > 0) {
-        status = 'excess';
-        statusClass = 'status-danger';
-        statusText = 'Excesso';
-    } else {
-        status = 'missing';
-        statusClass = 'status-danger';
-        statusText = 'Falta';
-    }
-    
-    if (statusBadge) {
-        statusBadge.className = `status-badge ${statusClass}`;
-        statusBadge.textContent = statusText;
-    }
-    
-    // Atualiza no estado
-    const itemIndex = appState.currentReceivingItems.findIndex(item => item.productId === productId);
-    if (itemIndex >= 0) {
-        appState.currentReceivingItems[itemIndex] = {
-            ...appState.currentReceivingItems[itemIndex],
-            expectedQty,
-            receivedQty,
-            status
-        };
-    }
-}
-
-// Abre o modal de contestação
-function openContestModal() {
-    // Verifica se há itens com problemas
-    const hasProblems = appState.currentReceivingItems.some(item => 
-        item.status === 'missing' || item.status === 'excess'
-    );
-    
-    if (!hasProblems) {
-        showAlert('Não há itens com divergência para contestar', 'warning');
-        return;
-    }
-    
-    openModal('contest');
-}
-
-// Envia a contestação
-async function submitContest() {
-    try {
-        const reason = document.getElementById('contest-reason')?.value;
-        const description = document.getElementById('contest-description')?.value;
-        
-        if (!reason || !description) {
-            throw new Error('Preencha o motivo e a descrição da contestação');
-        }
-        
-        // Marca os itens problemáticos como contestados
-        appState.currentReceivingItems.forEach(item => {
-            if (item.status === 'missing' || item.status === 'excess') {
-                item.contested = true;
-                item.contestReason = reason;
-                item.contestDescription = description;
-            }
-        });
-        
-        closeModal();
-        showAlert('Contestação registrada com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro ao enviar contestação:', error);
-        showAlert('Erro ao enviar contestação: ' + error.message, 'error');
-    }
-}
-
-// Confirma o recebimento
-async function confirmReceiving() {
-    try {
-        const invoiceNumberInput = document.getElementById('invoice-number');
-        const supplierSelect = document.getElementById('supplier');
-        
-        const invoiceNumber = invoiceNumberInput?.value.trim();
-        const supplierId = supplierSelect?.value;
-        
-        if (!invoiceNumber || !supplierId) {
-            if (!invoiceNumber) invoiceNumberInput?.focus();
-            else if (!supplierId) supplierSelect?.focus();
+            });
             
-            throw new Error('Preencha todos os campos obrigatórios:\n' +
-                           (!invoiceNumber ? '- Número da nota fiscal\n' : '') +
-                           (!supplierId ? '- Fornecedor' : ''));
+            closeModal();
+            showAlert('Contestação registrada com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao enviar contestação:', error);
+            showAlert('Erro ao enviar contestação: ' + error.message, 'error');
         }
-        
-        if (appState.currentReceivingItems.length === 0) {
-            throw new Error('Adicione pelo menos um item ao recebimento');
-        }
-        
-        // Cria o recebimento
-        const receivingData = {
-            invoiceNumber,
-            supplierId,
-            items: appState.currentReceivingItems.map(item => ({
-                productId: item.productId,
-                expectedQty: item.expectedQty,
-                receivedQty: item.receivedQty
-            }))
-        };
-        
-        const response = await fetchAPI('receivings', 'POST', receivingData);
-        
-        // Limpa o formulário
-        if (invoiceNumberInput) invoiceNumberInput.value = '';
-        if (supplierSelect) supplierSelect.value = '';
-        
-        const tbody = document.getElementById('receiving-items');
-        if (tbody) tbody.innerHTML = '';
-        
-        appState.currentReceivingItems = [];
-        
-        showAlert('Recebimento confirmado com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro ao confirmar recebimento:', error);
-        showAlert(error.message, 'error');
     }
-}
 
-// Configura os event listeners
-function setupEventListeners() {
-    // Nova seção
-    const addSectionBtn = document.getElementById('add-section');
-    if (addSectionBtn) {
-        addSectionBtn.addEventListener('click', () => {
-            openModal('new-section');
-        });
+    // Confirma o recebimento
+    async function confirmReceiving() {
+        try {
+            const invoiceNumberInput = document.getElementById('invoice-number');
+            const supplierSelect = document.getElementById('supplier');
+            
+            const invoiceNumber = invoiceNumberInput?.value.trim();
+            const supplierId = supplierSelect?.value;
+            
+            if (!invoiceNumber || !supplierId) {
+                if (!invoiceNumber) invoiceNumberInput?.focus();
+                else if (!supplierId) supplierSelect?.focus();
+                
+                throw new Error('Preencha todos os campos obrigatórios:\n' +
+                               (!invoiceNumber ? '- Número da nota fiscal\n' : '') +
+                               (!supplierId ? '- Fornecedor' : ''));
+            }
+            
+            if (appState.currentReceivingItems.length === 0) {
+                throw new Error('Adicione pelo menos um item ao recebimento');
+            }
+            
+            // Cria o recebimento
+            const receivingData = {
+                invoiceNumber,
+                supplierId,
+                items: appState.currentReceivingItems.map(item => ({
+                    productId: item.productId,
+                    expectedQty: item.expectedQty,
+                    receivedQty: item.receivedQty
+                }))
+            };
+            
+            const response = await fetchAPI('receivings', 'POST', receivingData);
+            
+            // Limpa o formulário
+            if (invoiceNumberInput) invoiceNumberInput.value = '';
+            if (supplierSelect) supplierSelect.value = '';
+            
+            const tbody = document.getElementById('receiving-items');
+            if (tbody) tbody.innerHTML = '';
+            
+            appState.currentReceivingItems = [];
+            
+            showAlert('Recebimento confirmado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao confirmar recebimento:', error);
+            showAlert(error.message, 'error');
+        }
     }
-    
-    // Novo corredor
-    const addAisleBtn = document.getElementById('add-aisle');
-    if (addAisleBtn) {
-        addAisleBtn.addEventListener('click', () => {
-            openModal('new-aisle');
-        });
-    }
-    
-    // Seleção de seção
-    const warehouseSection = document.getElementById('warehouse-section');
-    if (warehouseSection) {
-        warehouseSection.addEventListener('change', async function() {
-            const sectionId = this.value;
-            if (sectionId) {
-                try {
-                    const section = appState.sections.find(s => s._id == sectionId);
-                    appState.currentSection = section;
-                    
-                    // Carrega os corredores desta seção
-                    const aislesData = await fetchAPI(`aisles?sectionId=${sectionId}`);
-                    appState.aisles = aislesData.data;
-                    
-                    renderWarehouseMap(sectionId);
-                    const aisleControls = document.getElementById('aisle-controls');
-                    if (aisleControls) aisleControls.style.display = 'block';
-                    
-                    // Atualiza o select de seção no modal de corredor
-                    const aisleSectionSelect = document.getElementById('aisle-section');
-                    if (aisleSectionSelect) {
-                        aisleSectionSelect.innerHTML = '';
-                        const option = document.createElement('option');
-                        option.value = section._id;
-                        option.textContent = `${section.name} (${section.code})`;
-                        aisleSectionSelect.appendChild(option);
+
+    // Configura os event listeners
+    function setupEventListeners() {
+        // Nova seção
+        const addSectionBtn = document.getElementById('add-section');
+        if (addSectionBtn) {
+            addSectionBtn.addEventListener('click', () => {
+                openModal('new-section');
+            });
+        }
+        
+        // Novo corredor
+        const addAisleBtn = document.getElementById('add-aisle');
+        if (addAisleBtn) {
+            addAisleBtn.addEventListener('click', () => {
+                openModal('new-aisle');
+            });
+        }
+        
+        // Seleção de seção
+        const warehouseSection = document.getElementById('warehouse-section');
+        if (warehouseSection) {
+            warehouseSection.addEventListener('change', async function() {
+                const sectionId = this.value;
+                if (sectionId) {
+                    try {
+                        const section = appState.sections.find(s => s._id == sectionId);
+                        appState.currentSection = section;
+                        
+                        // Carrega os corredores desta seção
+                        const aislesData = await fetchAPI(`aisles?sectionId=${sectionId}`);
+                        appState.aisles = aislesData.data || [];
+                        
+                        renderWarehouseMap(sectionId);
+                        const aisleControls = document.getElementById('aisle-controls');
+                        if (aisleControls) aisleControls.style.display = 'block';
+                        
+                        // Atualiza o select de seção no modal de corredor
+                        const aisleSectionSelect = document.getElementById('aisle-section');
+                        if (aisleSectionSelect) {
+                            aisleSectionSelect.innerHTML = '';
+                            const option = document.createElement('option');
+                            option.value = section._id;
+                            option.textContent = `${section.name} (${section.code})`;
+                            aisleSectionSelect.appendChild(option);
+                        }
+                    } catch (error) {
+                        console.error('Erro ao carregar corredores:', error);
+                        showAlert('Erro ao carregar corredores: ' + error.message, 'error');
                     }
-                } catch (error) {
-                    console.error('Erro ao carregar corredores:', error);
-                    showAlert('Erro ao carregar corredores: ' + error.message, 'error');
+                } else {
+                    const warehouseMap = document.getElementById('warehouse-map');
+                    if (warehouseMap) {
+                        warehouseMap.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-warehouse"></i>
+                                <p>Selecione uma seção para visualizar o armazém</p>
+                            </div>
+                        `;
+                    }
+                    const aisleControls = document.getElementById('aisle-controls');
+                    if (aisleControls) aisleControls.style.display = 'none';
                 }
-            } else {
-                const warehouseMap = document.getElementById('warehouse-map');
-                if (warehouseMap) {
-                    warehouseMap.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-warehouse"></i>
-                            <p>Selecione uma seção para visualizar o armazém</p>
-                        </div>
-                    `;
+            });
+        }
+        
+        // Busca de produtos
+        const searchProductBtn = document.getElementById('search-product');
+        if (searchProductBtn) {
+            searchProductBtn.addEventListener('click', searchProducts);
+        }
+        
+        const itemSearch = document.getElementById('item-search');
+        if (itemSearch) {
+            itemSearch.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') searchProducts();
+            });
+        }
+        
+        // Busca na tabela de produtos
+        const searchProductsBtn = document.getElementById('search-products-btn');
+        if (searchProductsBtn) {
+            searchProductsBtn.addEventListener('click', searchProductsTable);
+        }
+        
+        const productsSearch = document.getElementById('products-search');
+        if (productsSearch) {
+            productsSearch.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') searchProductsTable();
+            });
+        }
+        
+        // Exportar produtos
+        const exportProductsBtn = document.getElementById('export-products');
+        if (exportProductsBtn) {
+            exportProductsBtn.addEventListener('click', exportProductsToCSV);
+        }
+        
+        // Adicionar item ao local
+        const addItemBtn = document.getElementById('add-item');
+        if (addItemBtn) {
+            addItemBtn.addEventListener('click', addItemToLocation);
+        }
+        
+        // Salvar seção
+        const saveSectionBtn = document.getElementById('save-section');
+        if (saveSectionBtn) {
+            saveSectionBtn.addEventListener('click', saveSection);
+        }
+        
+        // Salvar corredor
+        const saveAisleBtn = document.getElementById('save-aisle');
+        if (saveAisleBtn) {
+            saveAisleBtn.addEventListener('click', saveAisle);
+        }
+        
+        // Cadastrar novo produto
+        const addProductBtn = document.getElementById('add-product');
+        if (addProductBtn) {
+            addProductBtn.addEventListener('click', () => {
+                // Reseta o formulário de produto
+                document.getElementById('product-code').value = '';
+                document.getElementById('product-name').value = '';
+                document.getElementById('product-description').value = '';
+                document.getElementById('product-barcode').value = '';
+                
+                // Altera o botão de salvar para criar
+                const saveBtn = document.getElementById('save-product');
+                if (saveBtn) {
+                    saveBtn.textContent = 'Salvar Produto';
+                    saveBtn.removeAttribute('data-product-id');
                 }
-                const aisleControls = document.getElementById('aisle-controls');
-                if (aisleControls) aisleControls.style.display = 'none';
-            }
+                
+                openModal('new-product');
+            });
+        }
+        
+        // Salvar produto
+        const saveProductBtn = document.getElementById('save-product');
+        if (saveProductBtn) {
+            saveProductBtn.addEventListener('click', saveProduct);
+        }
+        
+        // Gerar código de barras
+        const generateBarcodeBtn = document.getElementById('generate-barcode');
+        if (generateBarcodeBtn) {
+            generateBarcodeBtn.addEventListener('click', generateBarcode);
+        }
+        
+        // Escanear código de barras
+        const scanBarcodeBtn = document.getElementById('scan-barcode');
+        if (scanBarcodeBtn) {
+            scanBarcodeBtn.addEventListener('click', scanBarcode);
+        }
+        
+        // Contestar recebimento
+        const contestReceivingBtn = document.getElementById('contest-receiving');
+        if (contestReceivingBtn) {
+            contestReceivingBtn.addEventListener('click', openContestModal);
+        }
+        
+        // Enviar contestação
+        const submitContestBtn = document.getElementById('submit-contest');
+        if (submitContestBtn) {
+            submitContestBtn.addEventListener('click', submitContest);
+        }
+        
+        // Confirmar recebimento
+        const saveReceivingBtn = document.getElementById('save-receiving');
+        if (saveReceivingBtn) {
+            saveReceivingBtn.addEventListener('click', confirmReceiving);
+        }
+        
+        // Fechar modais
+        document.querySelectorAll('.close-modal').forEach(btn => {
+            btn.addEventListener('click', closeModal);
+        });
+        
+        document.querySelectorAll('[id^="cancel-"]').forEach(btn => {
+            btn.addEventListener('click', closeModal);
         });
     }
-    
-    // Busca de produtos
-    const searchProductBtn = document.getElementById('search-product');
-    if (searchProductBtn) {
-        searchProductBtn.addEventListener('click', searchProducts);
-    }
-    
-    const itemSearch = document.getElementById('item-search');
-    if (itemSearch) {
-        itemSearch.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchProducts();
-        });
-    }
-    
-    // Busca na tabela de produtos
-    const searchProductsBtn = document.getElementById('search-products-btn');
-    if (searchProductsBtn) {
-        searchProductsBtn.addEventListener('click', searchProductsTable);
-    }
-    
-    const productsSearch = document.getElementById('products-search');
-    if (productsSearch) {
-        productsSearch.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchProductsTable();
-        });
-    }
-    
-    // Exportar produtos
-    const exportProductsBtn = document.getElementById('export-products');
-    if (exportProductsBtn) {
-        exportProductsBtn.addEventListener('click', exportProductsToCSV);
-    }
-    
-    // Adicionar item ao local
-    const addItemBtn = document.getElementById('add-item');
-    if (addItemBtn) {
-        addItemBtn.addEventListener('click', addItemToLocation);
-    }
-    
-    // Salvar seção
-    const saveSectionBtn = document.getElementById('save-section');
-    if (saveSectionBtn) {
-        saveSectionBtn.addEventListener('click', saveSection);
-    }
-    
-    // Salvar corredor
-    const saveAisleBtn = document.getElementById('save-aisle');
-    if (saveAisleBtn) {
-        saveAisleBtn.addEventListener('click', saveAisle);
-    }
-    
-    // Cadastrar novo produto
-    const addProductBtn = document.getElementById('add-product');
-    if (addProductBtn) {
-        addProductBtn.addEventListener('click', () => {
-            // Reseta o formulário de produto
-            document.getElementById('product-code').value = '';
-            document.getElementById('product-name').value = '';
-            document.getElementById('product-description').value = '';
-            document.getElementById('product-barcode').value = '';
+
+    // Carrega dados iniciais
+    async function loadInitialData() {
+        try {
+            // Carrega produtos
+            const productsData = await fetchAPI('products');
+            appState.products = productsData.data || [];
             
-            // Altera o botão de salvar para criar
-            const saveBtn = document.getElementById('save-product');
-            if (saveBtn) {
-                saveBtn.textContent = 'Salvar Produto';
-                saveBtn.removeAttribute('data-product-id');
-            }
+            // Carrega fornecedores
+            const suppliersData = await fetchAPI('suppliers');
+            appState.suppliers = suppliersData.data || [];
+            updateSuppliersSelect();
             
-            openModal('new-product');
-        });
+            // Carrega transportadoras
+            const carriersData = await fetchAPI('carriers');
+            appState.carriers = carriersData.data || [];
+            updateCarriersSelect();
+            
+            // Carrega seções do armazém
+            const sectionsData = await fetchAPI('sections');
+            appState.sections = sectionsData.data || [];
+            updateSectionsSelect();
+            
+            // Carrega corredores
+            const aislesData = await fetchAPI('aisles');
+            appState.aisles = aislesData.data || [];
+            
+            // Carrega itens de estoque
+            const inventoryData = await fetchAPI('inventory');
+            appState.inventory = inventoryData.data || [];
+            
+        } catch (error) {
+            console.error('Erro ao carregar dados iniciais:', error);
+            showAlert('Erro ao carregar dados iniciais: ' + error.message, 'error');
+        }
     }
-    
-    // Salvar produto
-    const saveProductBtn = document.getElementById('save-product');
-    if (saveProductBtn) {
-        saveProductBtn.addEventListener('click', saveProduct);
-    }
-    
-    // Gerar código de barras
-    const generateBarcodeBtn = document.getElementById('generate-barcode');
-    if (generateBarcodeBtn) {
-        generateBarcodeBtn.addEventListener('click', generateBarcode);
-    }
-    
-    // Escanear código de barras
-    const scanBarcodeBtn = document.getElementById('scan-barcode');
-    if (scanBarcodeBtn) {
-        scanBarcodeBtn.addEventListener('click', scanBarcode);
-    }
-    
-    // Contestar recebimento
-    const contestReceivingBtn = document.getElementById('contest-receiving');
-    if (contestReceivingBtn) {
-        contestReceivingBtn.addEventListener('click', openContestModal);
-    }
-    
-    // Enviar contestação
-    const submitContestBtn = document.getElementById('submit-contest');
-    if (submitContestBtn) {
-        submitContestBtn.addEventListener('click', submitContest);
-    }
-    
-    // Confirmar recebimento
-    const saveReceivingBtn = document.getElementById('save-receiving');
-    if (saveReceivingBtn) {
-        saveReceivingBtn.addEventListener('click', confirmReceiving);
-    }
-    
-    // Fechar modais
-    document.querySelectorAll('.close-modal').forEach(btn => {
-        btn.addEventListener('click', closeModal);
-    });
-    
-    document.querySelectorAll('[id^="cancel-"]').forEach(btn => {
-        btn.addEventListener('click', closeModal);
-    });
-}
 
-// Carrega dados iniciais
-async function loadInitialData() {
-    try {
-        // Carrega produtos
-        const productsData = await fetchAPI('products');
-        appState.products = productsData.data;
+    // Função para inicializar o sistema
+    async function initInventorySystem() {
+        // Verificar e obter token de autenticação
+        const authToken = getAuthToken();
+        if (!authToken) return;
         
-        // Carrega fornecedores
-        const suppliersData = await fetchAPI('suppliers');
-        appState.suppliers = suppliersData.data;
-        updateSuppliersSelect();
+        // Carregar dados do usuário
+        await loadUserData();
         
-        // Carrega transportadoras
-        const carriersData = await fetchAPI('carriers');
-        appState.carriers = carriersData.data;
-        updateCarriersSelect();
+        // Criar partículas
+        createGoldDust();
         
-        // Carrega seções do armazém
-        const sectionsData = await fetchAPI('sections');
-        appState.sections = sectionsData.data;
-        updateSectionsSelect();
+        // Configurar abas
+        setupTabs();
         
-        // Carrega corredores
-        const aislesData = await fetchAPI('aisles');
-        appState.aisles = aislesData.data;
+        // Carregar dados iniciais
+        await loadInitialData();
         
-        // Carrega itens de estoque
-        const inventoryData = await fetchAPI('inventory');
-        appState.inventory = inventoryData.data;
+        // Configurar eventos
+        setupEventListeners();
         
-    } catch (error) {
-        console.error('Erro ao carregar dados iniciais:', error);
-        showAlert('Erro ao carregar dados iniciais: ' + error.message, 'error');
+        // Carrega todos os produtos para a aba de produtos
+        await loadAllProducts();
     }
-}
 
-// Função para inicializar o sistema
-async function initInventorySystem() {
-    // Verificar e obter token de autenticação
-    const authToken = getAuthToken();
-    if (!authToken) return;
-    
-    // Carregar dados do usuário
-    await loadUserData();
-    
-    // Criar partículas
-    createGoldDust();
-    
-    // Configurar abas
-    setupTabs();
-    
-    // Carregar dados iniciais
-    await loadInitialData();
-    
-    // Configurar eventos
-    setupEventListeners();
-    
-    // Carrega todos os produtos para a aba de produtos
-    await loadAllProducts();
-}
-
-// Inicializa o sistema quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', initInventorySystem);
+    // Inicializa o sistema quando o DOM estiver carregado
+    document.addEventListener('DOMContentLoaded', initInventorySystem);
     </script>
 </body>
 </html>

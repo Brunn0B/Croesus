@@ -968,6 +968,7 @@ logisticsRouter.post('/suppliers', requireRole(['admin', 'manager']), async (req
 });
 
 // Rotas de Seções do Armazém
+// Rota para buscar seções do armazém
 logisticsRouter.get('/sections', async (req, res) => {
     try {
         const sections = await WarehouseSection.find().sort({ name: 1 });
@@ -984,6 +985,7 @@ logisticsRouter.get('/sections', async (req, res) => {
     }
 });
 
+// Rota para criar nova seção
 logisticsRouter.post('/sections', requireRole(['admin', 'manager']), async (req, res) => {
     try {
         const { name, code, description } = req.body;
@@ -1033,7 +1035,7 @@ logisticsRouter.post('/sections', requireRole(['admin', 'manager']), async (req,
     }
 });
 
-// Rotas de Corredores
+// Rota para buscar corredores
 logisticsRouter.get('/aisles', async (req, res) => {
     try {
         const { sectionId } = req.query;
@@ -1056,6 +1058,7 @@ logisticsRouter.get('/aisles', async (req, res) => {
     }
 });
 
+// Rota para criar novo corredor
 logisticsRouter.post('/aisles', requireRole(['admin', 'manager']), async (req, res) => {
     try {
         const { sectionId, name, shelves } = req.body;
@@ -1102,6 +1105,7 @@ logisticsRouter.post('/aisles', requireRole(['admin', 'manager']), async (req, r
         const aisle = new Aisle({
             sectionId,
             name,
+            code: `${name.toUpperCase().substring(0, 3)}-${Math.floor(Math.random() * 1000)}`,
             shelves
         });
         
